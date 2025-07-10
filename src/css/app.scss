@@ -1,1 +1,156 @@
 // app global css in SCSS form
+body {
+  background-color: var(--q-background);
+  background-image: radial-gradient(#6D9CD8 0.2px, transparent 1px);
+  background-repeat: repeat;
+  animation: waveDots 2s linear infinite;
+  background-size: 20px 20px;
+  will-change: background-position;
+  font-family: 'Nunito', 'Helvetica Neue', sans-serif;
+}
+
+body.body--dark {
+  background-color: var(--q-background);
+  background-image: radial-gradient(#6D9CD8 0.2px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+@keyframes waveDots {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 0 40px;
+  }
+}
+
+body .q-notify {
+  z-index: 9999 !important;
+}
+
+h1, h2, h3, h4, h5, h6, p {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.q-btn {
+  border-radius: 1rem;
+}
+
+.q-form .q-input,
+.q-form .q-file,
+.q-textarea {
+  margin-bottom: 1rem;
+}
+
+.q-input .q-field__control,
+.q-textarea .q-field__control,
+.q-file .q-field__control {
+  border-radius: 1rem !important;
+}
+
+.q-file .q-field__control:hover,
+.q-field--focused .q-field__control{
+  box-shadow: 0 0 0.5rem var(--q-primary);
+}
+
+.q-card {
+  max-width: 100%;
+  padding: 1rem 2rem 1rem 2rem;
+  margin-bottom: 3rem;
+  border-radius: 1rem;
+  background-color: var(--q-background);
+  color: var(--q-text);
+}
+
+.q-tabs {
+  transition: background-color 0.3s ease;
+  border-radius: 1rem !important;
+  margin-bottom: 2rem;
+  background-color: var(--q-background);
+}
+.q-tab {
+  transition: background-color 0.3s;
+  color: var(--q-text);
+}
+.q-tab:hover {
+  background-color: var(--q-secondary);
+  transition: background-color 0.3s ease;
+}
+.q-tab--active {
+  background-color: var(--q-primary);
+  transition: background-color 0.3s ease;
+  color: var(--q-accent);
+}
+
+.q-linear-progress {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 4vh;
+  z-index: 9999;
+  transform-origin: left top;
+  transition: height 0.2s ease;
+}
+
+.q-menu {
+  background-color: transparent;
+  border: 2px solid var(--q-primary);
+  border-radius: 1rem;
+}
+
+.q-item {
+  background-color: var(--q-background);
+  color: var(--q-text);
+}
+
+.q-separator {
+  margin: 1rem;
+}
+
+.q-expansion-item {
+  border-radius: 1rem;
+}
+
+.link {
+  text-decoration: none;
+  color: var(--q-text);
+  transition: all 0.2s ease;
+}
+.link-active {
+  color: var(--q-primary);
+  transition: all 0.2s ease;
+}
+
+.submit {
+  width: 100%;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 12px;
+  border-radius: 1rem;
+}
+
+.submit:hover {
+  background-color: #3ea76d;
+  box-shadow: 0 0 0.5rem rgba(62, 167, 109, 0.5);
+  transition: all 0.2s ease;
+}
+
+.close {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  z-index: 10;
+}
+
+.popup-background {
+  position: fixed;
+  display: flex;
+  justify-content: center; /* horizontal center */
+  align-items: center; /* vertical center */
+  height: 100vh; /* full viewport height */
+  width: 100vw;
+  background-color: rgba(0, 0, 0, 0.7); /* dimmed background */
+  z-index: 10;
+}

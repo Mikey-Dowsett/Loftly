@@ -7,6 +7,18 @@ const routes: RouteRecordRaw[] = [
     children: [{ path: '', component: () => import('pages/IndexPage.vue') }],
   },
 
+  {
+    path: '/CreatePost',
+    component: () => import('src/pages/CreatePostPage.vue'),
+    children: [{ path: '', component: () => import('pages/IndexPage.vue') }],
+  },
+
+  {
+    path: '/ConnectAccounts',
+    component: () => import('components/ConnectAccountsComponent.vue'),
+    children: [{ path: '', component: () => import('pages/IndexPage.vue') }],
+  },
+
   // Always leave this as last one,
   // but you can also remove it
   {
