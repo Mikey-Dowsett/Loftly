@@ -3,20 +3,17 @@ import type { RouteRecordRaw } from 'vue-router';
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
-    component: () => import('layouts/MainLayout.vue'),
-    children: [{ path: '', component: () => import('pages/IndexPage.vue') }],
+    component: () => import('src/pages/LandingPage.vue'),
   },
 
   {
-    path: '/CreatePost',
-    component: () => import('src/pages/CreatePostPage.vue'),
-    children: [{ path: '', component: () => import('pages/IndexPage.vue') }],
+    path: '/post',
+    component: () => import('pages/PostPage.vue'),
   },
 
   {
-    path: '/ConnectAccounts',
-    component: () => import('components/ConnectAccountsComponent.vue'),
-    children: [{ path: '', component: () => import('pages/IndexPage.vue') }],
+    path: '/mastodon/callback',
+    component: () => import('pages/MastodonCallback.vue'),
   },
 
   // Always leave this as last one,

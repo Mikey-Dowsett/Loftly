@@ -1,25 +1,51 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
-import { createClient, type User } from '@supabase/supabase-js';
+import { ref } from 'vue';
 import { useQuasar, QForm } from 'quasar';
 import { eventBus } from '../tools/event-bus';
+import { useAuthStore } from 'stores'
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const auth = useAuthStore()
 
 const modelValue = defineModel<boolean | null>({default: false});
 const formRef = ref();
 const email = ref('');
 const password = ref('');
 const confirmPassword = ref('');
-const authMode = ref('signIn'); // or 'signUp'
-/**
- * eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
- */
-const user = ref<User | null>(null);
+const authMode = ref('signIn');
 const $q = useQuasar();
+
+const confirmPasswordRule = (val: string) =>
+  val === password.value || 'Passwords do not match';
+
+const handleAuth = async () => {
+  try {
+    if (authMode.value === 'signUp') {
+      await auth.signUpWithEmail(email.value, password.value);
+    } else {
+      await auth.signInWithEmail(email.value, password.value);
+    }
+
+    eventBus.emit('logged-in');
+    $q.notify({
+      type: 'positive',
+      message: 'Successfully logged in',
+      position: 'top-right',
+      timeout: 2000,
+    });
+  } catch (error) {
+    $q.notify({
+      type: 'negative',
+      message: 'Something went wrong',
+      position: 'top-right',
+      timeout: 2000,
+    });
+    console.error(error);
+  }
+};
+
+const closeLoginWindow = () => {
+  eventBus.emit('logged-in');
+};
 
 const emailRule = (val: string) =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val) || 'Please enter a valid email';
@@ -30,67 +56,6 @@ const passwordLengthRule = (val: string) =>
 const securePasswordRule = (val: string) =>
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/.test(val) ||
   'Password must include uppercase, lowercase, number, and special character';
-
-const confirmPasswordRule = (val: string) =>
-  val === password.value || 'Passwords do not match';
-
-const handleAuth = async () => {
-  const { data, error } =
-    authMode.value === 'signUp'
-      ? await supabase.auth.signUp({ email: email.value, password: password.value })
-      : await supabase.auth.signInWithPassword({ email: email.value, password: password.value });
-
-  if (error) {
-    $q.notify({
-      type: 'negative',
-      message: error.message,
-      position: 'top-right',
-      timeout: 2000,
-    });
-  } else {
-    user.value = data.user || (await getCurrentUser());
-    eventBus.emit('logged-in');
-    $q.notify({
-      type: 'positive',
-      message: 'Successfully logged in',
-      position: 'top-right',
-      timeout: 2000,
-    });
-
-    if (authMode.value === 'signUp' && user.value) {
-      //Create user folder in images
-      await supabase.storage
-        .from('images')
-        .upload(`${user.value.id}/.init`, new Blob(['Initialized']), {
-          upsert: false,
-          contentType: 'image/*',
-        });
-      //Create user folder in photos
-      await supabase.storage
-        .from('videos')
-        .upload(`${user.value.id}/.init`, new Blob(['Initialized']), {
-          upsert: false,
-          contentType: 'image/*',
-        });
-    }
-  }
-};
-
-const getCurrentUser = async () => {
-  const { data } = await supabase.auth.getUser();
-  return data.user;
-};
-
-const closeLoginWindow = () => {
-  eventBus.emit('logged-in');
-};
-
-onMounted(() => {
-  document.body.style.overflow = 'hidden';
-});
-onUnmounted(() => {
-  document.body.style.overflow = '';
-});
 </script>
 
 <template>

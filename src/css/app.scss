@@ -34,6 +34,7 @@ h1, h2, h3, h4, h5, h6, p {
 }
 
 .q-btn {
+  font-weight: bold;
   border-radius: 1rem;
 }
 
@@ -61,6 +62,8 @@ h1, h2, h3, h4, h5, h6, p {
   border-radius: 1rem;
   background-color: var(--q-background);
   color: var(--q-text);
+  border: 0.2rem solid var(--q-primary);
+  box-shadow: none;
 }
 
 .q-tabs {
@@ -78,7 +81,7 @@ h1, h2, h3, h4, h5, h6, p {
   transition: background-color 0.3s ease;
 }
 .q-tab--active {
-  background-color: var(--q-primary);
+  background-color: var(--q-secondary);
   transition: background-color 0.3s ease;
   color: var(--q-accent);
 }
@@ -106,10 +109,21 @@ h1, h2, h3, h4, h5, h6, p {
 }
 
 .q-separator {
+  background-color: var(--q-text);
+  height: 0.25rem;
   margin: 1rem;
+  border-radius: 1rem;
 }
 
 .q-expansion-item {
+  border-radius: 1rem;
+}
+
+.q-tooltip {
+  background-color: var(--q-background);
+  color: var(--q-text);
+  font-size: 1rem;
+  border: 0.2rem solid var(--q-accent);
   border-radius: 1rem;
 }
 
@@ -119,7 +133,7 @@ h1, h2, h3, h4, h5, h6, p {
   transition: all 0.2s ease;
 }
 .link-active {
-  color: var(--q-primary);
+  color: var(--q-accent);
   transition: all 0.2s ease;
 }
 

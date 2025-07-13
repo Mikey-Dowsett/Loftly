@@ -12,3 +12,11 @@ export type ConnectedAccount = {
   created_at: string,
   enabled: boolean,
 }
+
+export type Instances = {
+  id: number,
+  platform: string,
+  instance: string,
+  client_key: string,
+  client_secret: string,
+}

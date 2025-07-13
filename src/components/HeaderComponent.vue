@@ -1,18 +1,14 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { Dark, QMenu } from 'quasar'
 import { eventBus } from '../tools/event-bus'
-import { useAuthStore } from 'stores/auth'
+import { useAuthStore } from 'stores'
 import LoginWindow from '../components/LoginWindow.vue'
 
 const showLoginWindow = ref(false)
 const menuRef = ref<InstanceType<typeof QMenu> | null>(null)
 
 const auth = useAuthStore()
-
-onMounted(async () => {
-  await auth.init()
-})
 
 const showLogin = () => {
   showLoginWindow.value = true
@@ -37,11 +33,8 @@ eventBus.on('logged-in', () => {
     </div>
   </router-link>
   <div v-if="!auth.loading" class="account">
-    <router-link to="/CreatePost" class="link" active-class="link-active">
+    <router-link v-if="auth.user" to="/post" class="link" active-class="link-active">
       <h4 style="font-size: x-large">Create Post</h4>
-    </router-link>
-    <router-link to="/ConnectAccounts" class="link" active-class="link-active">
-      <h4 style="font-size: x-large">Accounts</h4>
     </router-link>
 
     <q-btn v-if="auth.user" round flat icon="person" size="lg" aria-label="Account Menu">
@@ -53,15 +46,9 @@ eventBus.on('logged-in', () => {
             </q-item-section>
           </q-item>
 
-          <q-item v-if="auth.user" clickable to="/CreatePost" tag="router-link">
+          <q-item v-if="auth.user" clickable to="/post" tag="router-link" active-class="link-active">
             <q-item-section>
               <div class="text-weight-bold">Create Post</div>
-            </q-item-section>
-          </q-item>
-
-          <q-item v-if="auth.user" clickable to="/ConnectAccounts" tag="router-link">
-            <q-item-section>
-              <div class="text-weight-bold">Accounts</div>
             </q-item-section>
           </q-item>
 
@@ -101,7 +88,7 @@ eventBus.on('logged-in', () => {
   padding: 0 2rem;
   background-color: var(--q-background);
   color: var(--q-text);
-  box-shadow: 0 5px 10px var(--q-primary);
+  box-shadow: 0 0 20px var(--q-primary);
   position: relative;
 }
 .logo {

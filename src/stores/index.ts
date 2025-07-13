@@ -1,5 +1,33 @@
 import { defineStore } from '#q-app/wrappers'
 import { createPinia } from 'pinia'
+import { useAuthStore } from './auth'
+import { useAccountsStore } from './accounts'
+import { useMastodonStore } from './mastodon'
+import { useBlueskyStore } from 'stores/bluesky';
+
+export async function initializeStores() {
+  const authStore = useAuthStore();
+  const connectedAccountsStore = useAccountsStore();
+  const mastodonStore = useMastodonStore();
+
+  // Initialize auth first
+  await authStore.init();
+
+  // Initialize other stores if user is authenticated
+  if (authStore.user) {
+    await Promise.all([
+      connectedAccountsStore.init(),
+      mastodonStore.init(),
+    ]);
+  }
+}
+
+export {
+  useAuthStore,
+  useAccountsStore,
+  useMastodonStore,
+  useBlueskyStore,
+}
 
 /*
  * When adding new properties to stores, you should also
@@ -13,15 +41,6 @@ declare module 'pinia' {
   }
 }
 
-/*
- * If not building with SSR mode, you can
- * directly export the Store instantiation;
- *
- * The function below can be async too; either use
- * async/await or return a Promise which resolves
- * with the Store instance.
- */
-
 export default defineStore((/* { ssrContext } */) => {
   const pinia = createPinia()
 
@@ -29,4 +48,4 @@ export default defineStore((/* { ssrContext } */) => {
   // pinia.use(SomePiniaPlugin)
 
   return pinia
-})
+});
