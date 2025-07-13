@@ -2,8 +2,7 @@ import { defineStore } from 'pinia'
 import { AtpAgent } from '@atproto/api'
 import { createClient } from '@supabase/supabase-js'
 import { eventBus } from '../tools/event-bus'
-import { useAuthStore } from './auth'
-import { useAccountsStore } from './accounts'
+import { useAuthStore, useAccountsStore } from './'
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -17,7 +16,7 @@ export const useBlueskyStore = defineStore('bluesky', {
   actions: {
     async connectAccount(handle: string, app_password: string) {
       const auth = useAuthStore();
-      if  (!auth.user) return 'Not logged in';
+      if (!auth.user) return 'Not logged in';
 
       this.connecting = true;
       const agent = new AtpAgent({ service: 'https://bsky.social' });

@@ -1,9 +1,11 @@
 import { defineStore } from '#q-app/wrappers'
 import { createPinia } from 'pinia'
 import { useAuthStore } from './auth'
+import { useStorageStore } from './storage'
 import { useAccountsStore } from './accounts'
 import { useMastodonStore } from './mastodon'
-import { useBlueskyStore } from 'stores/bluesky';
+import { useBlueskyStore } from './bluesky';
+import { useLemmyStore } from './lemmy'
 
 export async function initializeStores() {
   const authStore = useAuthStore();
@@ -24,9 +26,11 @@ export async function initializeStores() {
 
 export {
   useAuthStore,
+  useStorageStore,
   useAccountsStore,
   useMastodonStore,
   useBlueskyStore,
+  useLemmyStore,
 }
 
 /*

@@ -6,6 +6,7 @@ import { useBlueskyStore } from "stores";
 
 const $q = useQuasar();
 const bluesky = useBlueskyStore();
+
 const handle = ref('')
 const appPassword = ref('')
 const modelValue = defineModel<boolean | null>({default: false});
@@ -13,6 +14,7 @@ const modelValue = defineModel<boolean | null>({default: false});
 async function connectAccount() {
   handle.value.replace('@', '')
   const response = await bluesky.connectAccount(handle.value, appPassword.value);
+
   if(response === 'Account Connected') {
     $q.notify({
       message: 'Connected successfully!',

@@ -6,12 +6,14 @@ import { useAccountsStore } from 'stores';
 
 import ConnectBlueSkyComponent from './ConnectBlueskyComponent.vue';
 import ConnectMastodonComponent from 'components/ConnectMastodonComponent.vue';
+import ConnectLemmyComponent from 'components/ConnectLemmyComponent.vue';
 
 const accounts = useAccountsStore();
 
-type PlatformName = 'mastodon' | 'bluesky';
+type PlatformName = 'mastodon' | 'bluesky' | 'lemmy';
 const newBlueskyAccount = ref<boolean>(false);
 const newMastodonAccount = ref<boolean>(false);
+const newLemmyAccount = ref<boolean>(false);
 const refreshKey = ref(0);
 
 eventBus.on('close-bluesky-login', () => {
@@ -21,7 +23,11 @@ eventBus.on('close-bluesky-login', () => {
 eventBus.on('close-mastodon-login', () => {
   newMastodonAccount.value = false;
   refreshKey.value++;
-})
+});
+eventBus.on('close-lemmy-login', () => {
+  newLemmyAccount.value = false;
+  refreshKey.value++;
+});
 
 const platforms: { name: PlatformName; label: string; icon: string; color: string }[] = [
   {
@@ -35,17 +41,25 @@ const platforms: { name: PlatformName; label: string; icon: string; color: strin
     label: 'Bluesky',
     icon: 'fa-brands fa-bluesky',
     color: '#1185fe'
-  }
+  },
+  {
+    name: 'lemmy',
+    label: 'Lemmy',
+    icon: '/icons/lemmy.svg',
+    color: '#66d7ba',
+  },
 ];
 
 const platformToggles = reactive<Record<PlatformName, boolean>>({
   mastodon: true,
-  bluesky: true
+  bluesky: true,
+  lemmy: true,
 });
 
 const expansionRefs = reactive<Record<PlatformName, InstanceType<typeof QExpansionItem> | null>>({
   mastodon: null,
-  bluesky: null
+  bluesky: null,
+  lemmy: null,
 });
 
 const isDeleteDialogOpen = ref(false);
@@ -56,6 +70,8 @@ function triggerAddNew(platform: string) {
     newMastodonAccount.value = true;
   } else if (platform === 'bluesky') {
     newBlueskyAccount.value = true;
+  } else if (platform === 'lemmy') {
+    newLemmyAccount.value = true;
   }
 }
 
@@ -84,7 +100,10 @@ function toggleAllForPlatform(platform: PlatformName, value: boolean) {
       expand-icon="fa-solid fa-caret-up" hide-icon="fa-solid fa-caret-down">
       <template v-slot:header>
         <q-item-section avatar>
-          <q-icon :name="platform.icon" :style="'color: ' + platform.color" size="lg" />
+          <q-icon v-if="platform.icon.endsWith('.svg')" :name="'img:' + platform.icon"
+                  :style="{color: platform.color}" size="lg" />
+          <q-icon v-else :name="platform.icon"
+                  :style="{color: platform.color}" size="lg" />
         </q-item-section>
         <q-item-section>
           <h5 class="q-ma-none text-weight-bold">{{ platform.label }}</h5>
@@ -93,7 +112,7 @@ function toggleAllForPlatform(platform: PlatformName, value: boolean) {
           <q-toggle v-model="platformToggles[platform.name]"
                     @update:model-value="(val) => toggleAllForPlatform(platform.name, val)"
                     color="primary">
-            <q-tooltip>Toogle all {{ platform.label }} accounts?</q-tooltip>
+            <q-tooltip>Toggle all {{ platform.label }} accounts?</q-tooltip>
           </q-toggle>
         </q-item-section>
       </template>
@@ -141,6 +160,7 @@ function toggleAllForPlatform(platform: PlatformName, value: boolean) {
 
   <ConnectBlueSkyComponent v-if="newBlueskyAccount" v-model="newBlueskyAccount" :key="refreshKey" />
   <ConnectMastodonComponent v-if="newMastodonAccount" v-model="newMastodonAccount" :key="refreshKey" />
+  <ConnectLemmyComponent v-if="newLemmyAccount" v-model="newLemmyAccount" :key="refreshKey" />
 </template>
 
 <style scoped>
