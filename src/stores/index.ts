@@ -15,10 +15,13 @@ export async function initializeStores() {
   // Initialize auth first
   await authStore.init();
 
+  // Initialize accounts second
+  await connectedAccountsStore.init();
+
   // Initialize other stores if user is authenticated
   if (authStore.user) {
+    console.log("Initializing user store");
     await Promise.all([
-      connectedAccountsStore.init(),
       mastodonStore.init(),
     ]);
   }

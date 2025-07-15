@@ -7,6 +7,7 @@ import { useAuthStore, useStorageStore, useAccountsStore } from 'stores';
 import { useErrorHandling } from 'src/composables/useErrorHandling';
 
 import ConnectAccountsComponent from 'components/ConnectAccountsComponent.vue';
+import LemmyCommunitiesSearchComponent from 'components/LemmyCommunitiesSearchComponent.vue';
 
 const auth = useAuthStore();
 const accounts = useAccountsStore();
@@ -49,6 +50,8 @@ const onSubmit = async () => {
       throw new Error('Please select at least one account to post to');
     }
 
+    console.log(accounts.accounts);
+
     //Step 2: Validate post has some content
     const validationErrors = validatePost(message.value, rawImages.value, video.value);
     if (validationErrors.length > 0) {
@@ -74,7 +77,6 @@ const onSubmit = async () => {
       try {
         loadingStep.value = 'Uploading video...';
         loadingProgress.value = 0.3;
-
         // Implement video upload when ready
         // uploadedVideoFilename = await uploadVideoWithProgress(video.value);
         uploadedVideoFilename = null;
@@ -90,7 +92,10 @@ const onSubmit = async () => {
     loadingProgress.value = 0.7;
 
     const postPayload = {
+      title: title.value || null,
       message: message.value || null,
+      language: 'EN',
+      nsfw: false,
       connected_accounts: accounts.enabledAccounts,
       media_filenames: uploadedImageFilenames.length > 0 ? uploadedImageFilenames : null,
       video_filename: uploadedVideoFilename,
@@ -411,6 +416,10 @@ onUnmounted(() => {
             </div>
           </q-img>
         </div>
+
+        <q-expansion-item label="Lemmy Communities" v-if="accounts.accounts.filter(a => a.platform === 'lemmy' && a.enabled).length > 0">
+          <LemmyCommunitiesSearchComponent v-for="(account, index) in accounts.accounts.filter(a => a.platform === 'lemmy')" :key="index" :model-value="account" />
+        </q-expansion-item>
 
         <div style="display: flex; align-items: center">
           <q-icon name="fa-solid fa-calendar-days" size="md" class="q-mr-md" />

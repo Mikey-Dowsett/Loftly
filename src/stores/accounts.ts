@@ -36,7 +36,8 @@ export const useAccountsStore = defineStore('accounts', {
 
       this.accounts = (data || []).map(account => ({
         ...account,
-        enabled: true // or false, or something derived
+        enabled: true, // or false, or something derived
+        lemmy_communities: [],
       }));
 
       this.loading = false;

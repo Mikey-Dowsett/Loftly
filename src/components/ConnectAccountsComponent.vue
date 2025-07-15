@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive } from 'vue';
+import { ref, reactive, watch } from 'vue';
 import { QExpansionItem } from 'quasar';
 import { eventBus } from '../tools/event-bus';
 import { useAccountsStore } from 'stores';
@@ -91,6 +91,10 @@ function toggleAllForPlatform(platform: PlatformName, value: boolean) {
     expansionRefs[platform]?.show();
   }
 }
+
+watch(() => accounts.accounts, () => {
+  refreshKey.value++;
+}, {deep: true});
 </script>
 
 <template>

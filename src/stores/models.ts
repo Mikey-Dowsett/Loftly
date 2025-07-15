@@ -9,8 +9,13 @@ export type ConnectedAccount = {
   access_token: string,
   refresh_token: string,
   token_expires_at: string,
+  instance: string,
   created_at: string,
   enabled: boolean,
+  lemmy_communities: {
+    instance: string,
+    community_id: number,
+  }[],
 }
 
 export type Instances = {

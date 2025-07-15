@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { createClient } from '@supabase/supabase-js';
 import { useAuthStore, useAccountsStore } from './'
-import { LemmyHttp } from 'lemmy-js-client';
+import { LemmyHttp, type ListCommunitiesResponse } from 'lemmy-js-client';
 import { eventBus } from 'src/tools/event-bus';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
@@ -11,6 +11,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 export const useLemmyStore = defineStore('lemmy', {
   state: () => ({
     connecting: false,
+    communities: {instance: '', communities: []}
   }),
 
   actions: {
@@ -43,6 +44,7 @@ export const useLemmyStore = defineStore('lemmy', {
           app_password: null,
           access_token: response.jwt,
           refresh_token: null,
+          instance: cleanInstance,
           token_expires_at: null,
         });
 
@@ -54,6 +56,35 @@ export const useLemmyStore = defineStore('lemmy', {
         throw new Error('Login failed: No JWT token received')
       }
       this.connecting = false;
-    }
+    },
+
+    async searchCommunities(instance: string, query: string, jwt?: string) {
+      const auth = useAuthStore();
+      if (!auth.user) return null;
+
+      try {
+        const baseUrl = `https://${instance}`;
+
+        const client: LemmyHttp = new LemmyHttp(baseUrl);
+
+        if (jwt) {
+          client.setHeaders({ Authorization: `Bearer ${jwt}` });
+        }
+
+        const searchRequest = {
+          q: query,
+          type_: 'Communities' as const,
+          sort: 'TopAll' as const,
+          limit: 50,
+          page: 1,
+        }
+
+        const response: ListCommunitiesResponse = await client.search(searchRequest);
+
+        return response;
+      } catch {
+        throw new Error('Could not get communities from listCommunities');
+      }
+    },
   }
 })
