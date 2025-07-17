@@ -14,6 +14,7 @@ export type ConnectedAccount = {
   enabled: boolean,
   lemmy_communities: {
     instance: string,
+    community_name: string,
     community_id: number,
   }[],
 }

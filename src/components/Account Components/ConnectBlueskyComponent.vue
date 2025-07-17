@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useQuasar } from 'quasar'
-import { eventBus } from '../tools/event-bus';
+import { eventBus } from 'src/tools/event-bus';
 import { useBlueskyStore } from "stores";
 
 const $q = useQuasar();

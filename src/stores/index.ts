@@ -6,11 +6,13 @@ import { useAccountsStore } from './accounts'
 import { useMastodonStore } from './mastodon'
 import { useBlueskyStore } from './bluesky';
 import { useLemmyStore } from './lemmy'
+import { usePixelfedStore} from './pixelfed';
 
 export async function initializeStores() {
   const authStore = useAuthStore();
   const connectedAccountsStore = useAccountsStore();
   const mastodonStore = useMastodonStore();
+  const pixelfedStore = usePixelfedStore();
 
   // Initialize auth first
   await authStore.init();
@@ -23,6 +25,7 @@ export async function initializeStores() {
     console.log("Initializing user store");
     await Promise.all([
       mastodonStore.init(),
+      pixelfedStore.init(),
     ]);
   }
 }
@@ -34,6 +37,7 @@ export {
   useMastodonStore,
   useBlueskyStore,
   useLemmyStore,
+  usePixelfedStore,
 }
 
 /*

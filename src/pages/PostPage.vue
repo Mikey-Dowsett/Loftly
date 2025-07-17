@@ -6,7 +6,7 @@ import axios from 'axios';
 import { useAuthStore, useStorageStore, useAccountsStore } from 'stores';
 import { useErrorHandling } from 'src/composables/useErrorHandling';
 
-import ConnectAccountsComponent from 'components/ConnectAccountsComponent.vue';
+import ConnectAccountsComponent from 'components/Account Components/ConnectAccountsComponent.vue';
 import LemmyCommunitiesSearchComponent from 'components/LemmyCommunitiesSearchComponent.vue';
 
 const auth = useAuthStore();
@@ -102,7 +102,9 @@ const onSubmit = async () => {
       poll: null,
       type: uploadedVideoFilename ? 'video' : uploadedImageFilenames.length ? 'media' : 'text',
       visibility: 'public',
-      author_id: auth.user.id,
+      user_id: auth.user.id,
+      supabase_jwt: auth.session?.access_token,
+      supabase_refresh_jwt: auth.session?.refresh_token,
       created_at: new Date().toISOString(),
     };
 
@@ -110,7 +112,7 @@ const onSubmit = async () => {
     loadingStep.value = 'Publishing post...';
     loadingProgress.value = 0.9;
 
-    await axios.post(
+    const response = await axios.post(
       `http://localhost:8000/create_post`,
       postPayload,
       {
@@ -120,6 +122,8 @@ const onSubmit = async () => {
         timeout: 30000, // 30 Seconds
       }
     );
+
+    console.log(response.data);
 
     // Step 6: Post success
     loadingStep.value = 'Post created successfully!';

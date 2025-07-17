@@ -34,7 +34,10 @@
           </q-card-section>
           <div class="platforms-grid">
             <q-card-section v-for="platform in platforms" :key="platform.title">
-              <q-icon :name="platform.icon" size="40px" :style="{ color: platform.color }" />
+              <q-icon v-if="platform.icon.endsWith('.svg')" :name="'img:' + platform.icon"
+                      :style="{color: platform.color}" size="40px" />
+              <q-icon v-else :name="platform.icon"
+                      :style="{color: platform.color}" size="40px" />
               <div class="text-h6 text-weight-bold q-mb-xs">{{ platform.title }}</div>
             </q-card-section>
           </div>
@@ -99,15 +102,26 @@ const features = [
 
 const platforms = [
   {
+    icon: 'fa-brands fa-mastodon',
+    title: 'Mastodon',
+    color: '#5d52e9'
+  },
+  {
     icon: 'fa-brands fa-bluesky',
     title: 'Bluesky',
     color: '#1185fe'
   },
   {
-    icon: 'fa-brands fa-mastodon',
-    title: 'Mastodon',
-    color: '#5d52e9'
+    icon: "/icons/pixelfed.svg",
+    title: 'Pixel Fed',
+    color: '#ffffff'
+  },
+  {
+    icon: '/icons/lemmy.svg',
+    title: 'Lemmy',
+    color: '#66d7ba'
   }
+
 ];
 </script>
 

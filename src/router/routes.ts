@@ -16,6 +16,11 @@ const routes: RouteRecordRaw[] = [
     component: () => import('pages/MastodonCallback.vue'),
   },
 
+  {
+    path: '/pixelfed/callback',
+    component: () => import('pages/PixelfedCallback.vue'),
+  },
+
   // Always leave this as last one,
   // but you can also remove it
   {

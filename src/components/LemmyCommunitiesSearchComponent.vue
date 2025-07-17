@@ -29,11 +29,10 @@ function selectCommunity(id: number) {
     selectedCommunities.value.push(found);
     modelValue.value?.lemmy_communities.push({
       instance: modelValue.value.instance,
+      community_name: found.community.name,
       community_id: found.community.id,
     });
-    console.log(found);
-  }
-  communities.value = [];
+  }  communities.value = [];
   query.value = '';
 }
 

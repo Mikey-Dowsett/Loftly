@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { createClient, type User } from '@supabase/supabase-js'
+import { createClient, type User, type Session } from '@supabase/supabase-js'
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -7,7 +7,8 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    user: null as null | User,
+    user: null as User | null,
+    session: null as Session | null,
     loading: false,
   }),
 
@@ -20,6 +21,7 @@ export const useAuthStore = defineStore('auth', {
     async fetchUser() {
       this.loading = true;
       const { data: { session }, error } = await supabase.auth.getSession();
+      this.session = session;
       this.user = session?.user || null;
       this.loading = false;
 
@@ -33,6 +35,7 @@ export const useAuthStore = defineStore('auth', {
       this.loading = false;
 
       if (error) throw error;
+      await this.fetchUser();
       return true;
     },
 
@@ -53,6 +56,7 @@ export const useAuthStore = defineStore('auth', {
 
       //Create user folder in photos
       if(!this.user) return;
+      await this.fetchUser();
       await this.createUserStorageFolders();
     },
 

@@ -38,13 +38,13 @@ export const useLemmyStore = defineStore('lemmy', {
         await supabase.from('linked_accounts').insert({
           user_id: auth.user.id,
           platform: 'lemmy',
+          instance: cleanInstance,
           handle: username,
           account_url: `https://${cleanInstance}/u/${username.split('@')[0]}`,
           did: null,
           app_password: null,
           access_token: response.jwt,
           refresh_token: null,
-          instance: cleanInstance,
           token_expires_at: null,
         });
 

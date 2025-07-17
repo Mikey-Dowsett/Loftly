@@ -1,20 +1,23 @@
 <template>
   <q-layout view="lHh Lpr LFf">
     <HeaderComponent />
-    <router-view />
+    <router-view v-if="isReady" />
 <!--    <FooterComponent />-->
   </q-layout>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { initializeStores } from 'stores'
 import HeaderComponent from 'src/components/HeaderComponent.vue'
 // import FooterComponent from 'src/components/FooterComponent.vue'
 
+const isReady = ref(false);
+
 onMounted(async () => {
   await initializeStores();
-})
+  isReady.value = true;
+});
 </script>
 
 <style lang="scss">

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { eventBus } from '../tools/event-bus';
+import { eventBus } from 'src/tools/event-bus';
 import { useMastodonStore } from 'stores'
 
 const mastodon = useMastodonStore();

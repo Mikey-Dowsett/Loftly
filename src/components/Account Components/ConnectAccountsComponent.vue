@@ -1,19 +1,21 @@
 <script setup lang="ts">
 import { ref, reactive, watch } from 'vue';
 import { QExpansionItem } from 'quasar';
-import { eventBus } from '../tools/event-bus';
+import { eventBus } from 'src/tools/event-bus';
 import { useAccountsStore } from 'stores';
 
 import ConnectBlueSkyComponent from './ConnectBlueskyComponent.vue';
-import ConnectMastodonComponent from 'components/ConnectMastodonComponent.vue';
-import ConnectLemmyComponent from 'components/ConnectLemmyComponent.vue';
+import ConnectMastodonComponent from 'components/Account Components/ConnectMastodonComponent.vue';
+import ConnectLemmyComponent from 'components/Account Components/ConnectLemmyComponent.vue';
+import ConnectPixelfedComponent from 'components/Account Components/ConnectPixelfedComponent.vue';
 
 const accounts = useAccountsStore();
 
-type PlatformName = 'mastodon' | 'bluesky' | 'lemmy';
+type PlatformName = 'mastodon' | 'bluesky' | 'lemmy' | 'pixelfed';
 const newBlueskyAccount = ref<boolean>(false);
 const newMastodonAccount = ref<boolean>(false);
 const newLemmyAccount = ref<boolean>(false);
+const newPixelfedAccount = ref<boolean>(false);
 const refreshKey = ref(0);
 
 eventBus.on('close-bluesky-login', () => {
@@ -26,6 +28,10 @@ eventBus.on('close-mastodon-login', () => {
 });
 eventBus.on('close-lemmy-login', () => {
   newLemmyAccount.value = false;
+  refreshKey.value++;
+});
+eventBus.on('close-pixelfed-login', () => {
+  newPixelfedAccount.value = false;
   refreshKey.value++;
 });
 
@@ -48,18 +54,26 @@ const platforms: { name: PlatformName; label: string; icon: string; color: strin
     icon: '/icons/lemmy.svg',
     color: '#66d7ba',
   },
+  {
+    name: 'pixelfed',
+    label: 'PixelFed',
+    icon: '/icons/pixelfed.svg',
+    color: '#ffffff',
+  },
 ];
 
 const platformToggles = reactive<Record<PlatformName, boolean>>({
   mastodon: true,
   bluesky: true,
   lemmy: true,
+  pixelfed: true,
 });
 
 const expansionRefs = reactive<Record<PlatformName, InstanceType<typeof QExpansionItem> | null>>({
   mastodon: null,
   bluesky: null,
   lemmy: null,
+  pixelfed: null,
 });
 
 const isDeleteDialogOpen = ref(false);
@@ -72,6 +86,8 @@ function triggerAddNew(platform: string) {
     newBlueskyAccount.value = true;
   } else if (platform === 'lemmy') {
     newLemmyAccount.value = true;
+  } else if (platform === 'pixelfed') {
+    newPixelfedAccount.value = true;
   }
 }
 
@@ -165,6 +181,7 @@ watch(() => accounts.accounts, () => {
   <ConnectBlueSkyComponent v-if="newBlueskyAccount" v-model="newBlueskyAccount" :key="refreshKey" />
   <ConnectMastodonComponent v-if="newMastodonAccount" v-model="newMastodonAccount" :key="refreshKey" />
   <ConnectLemmyComponent v-if="newLemmyAccount" v-model="newLemmyAccount" :key="refreshKey" />
+  <ConnectPixelfedComponent v-if="newPixelfedAccount" v-model="newPixelfedAccount" :key="refreshKey" />
 </template>
 
 <style scoped>

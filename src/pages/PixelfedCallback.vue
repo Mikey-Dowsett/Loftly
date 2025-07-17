@@ -2,16 +2,16 @@
 import { onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useQuasar } from 'quasar';
-import { useAuthStore, useMastodonStore } from 'stores'
+import { useAuthStore, usePixelfedStore } from 'stores'
 
 const $q = useQuasar();
 const route = useRoute();
 const router = useRouter();
-const auth = useAuthStore();
-const mastodon = useMastodonStore();
+const pixelfed = usePixelfedStore();
 
 onMounted(async () => {
-  if(!auth.user) {
+  const auth = useAuthStore();
+  if (!auth.user) {
     $q.notify({
       type: 'negative',
       message: 'Please login first.',
@@ -20,30 +20,30 @@ onMounted(async () => {
     return await router.push('/');
   }
   const code = route.query.code as string;
-  const id = Number(route.query.state);
+  const instance = String(route.query.state);
 
   if (!code) {
     $q.notify({
       type: 'negative',
-      message: 'No code returned from Mastodon.',
+      message: 'No code returned from Pixelfed.',
       position: 'top-right'
     });
     return await router.push('/post');
   }
 
   try {
-    const response = await mastodon.connectAccount(code, id);
+    const response = await pixelfed.connectAccount(code, instance);
 
     if(response === 'Account Connected')
       $q.notify({
         type: 'positive',
-        message: 'Mastodon account connected!',
+        message: 'Pixelfed account connected!',
         position: 'top-right'
       });
     else
       $q.notify({
         type: 'negative',
-        message: response,
+        message: typeof response === 'string' ? response : 'Unexpected Pixelfed response.',
         position: 'top-right'
       })
     return await router.push('/post');
@@ -51,7 +51,7 @@ onMounted(async () => {
     console.error(error);
     $q.notify({
       type: 'negative',
-      message: 'Mastodon connection failed.',
+      message: 'Pixelfed connection failed.',
       position: 'top-right'
     });
     return await router.push('/post');
@@ -62,7 +62,7 @@ onMounted(async () => {
 <template>
   <div class="absolute-center" style="text-align: center;">
     <q-spinner-comment color="primary" size="25%" />
-    <h4>Connecting to Mastodon...</h4>
+    <h4>Connecting to Pixelfed...</h4>
   </div>
 </template>
 
