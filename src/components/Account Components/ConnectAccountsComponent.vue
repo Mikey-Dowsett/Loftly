@@ -49,16 +49,16 @@ const platforms: { name: PlatformName; label: string; icon: string; color: strin
     color: '#1185fe'
   },
   {
+    name: 'pixelfed',
+    label: 'PixelFed',
+    icon: '/icons/pixelfed.svg',
+    color: '#ee1155',
+  },
+  {
     name: 'lemmy',
     label: 'Lemmy',
     icon: '/icons/lemmy.svg',
     color: '#66d7ba',
-  },
-  {
-    name: 'pixelfed',
-    label: 'PixelFed',
-    icon: '/icons/pixelfed.svg',
-    color: '#ffffff',
   },
 ];
 

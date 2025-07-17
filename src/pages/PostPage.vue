@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { useQuasar } from 'quasar';
+import { QExpansionItem, useQuasar } from 'quasar';
 import axios from 'axios';
 import { useAuthStore, useStorageStore, useAccountsStore } from 'stores';
 import { useErrorHandling } from 'src/composables/useErrorHandling';
@@ -24,6 +24,7 @@ const media_tab = ref('images');
 const rawImages = ref<File[]>([]);
 const images = ref<{ blob: File; url: string }[]>([]);
 const imageFileInput = ref();
+const lemmyImageUrl = ref('')
 const video = ref();
 const date = ref('');
 
@@ -98,6 +99,7 @@ const onSubmit = async () => {
       nsfw: false,
       connected_accounts: accounts.enabledAccounts,
       media_filenames: uploadedImageFilenames.length > 0 ? uploadedImageFilenames : null,
+      lemmy_image_url: lemmyImageUrl.value,
       video_filename: uploadedVideoFilename,
       poll: null,
       type: uploadedVideoFilename ? 'video' : uploadedImageFilenames.length ? 'media' : 'text',
@@ -346,6 +348,8 @@ onUnmounted(() => {
           <!--          </template>-->
         </q-input>
 
+        <q-separator />
+
         <!-- Media Uploader -->
         <div style="display: flex; align-items: center">
           <q-icon name="fa-solid fa-photo-film" size="md" class="q-mr-md" />
@@ -421,40 +425,60 @@ onUnmounted(() => {
           </q-img>
         </div>
 
-        <q-expansion-item label="Lemmy Communities" v-if="accounts.accounts.filter(a => a.platform === 'lemmy' && a.enabled).length > 0">
+        <q-separator />
+
+        <q-expansion-item v-if="accounts.accounts.filter(a => a.platform === 'lemmy' && a.enabled).length > 0"
+                          expand-icon="fa-solid fa-caret-up" hide-icon="fa-solid fa-caret-down">
+          <template v-slot:header>
+            <q-item-section avatar>
+              <q-icon :name="'img: /icons/lemmy.svg'" size="xl" class="q-mr-md" />
+            </q-item-section>
+            <q-item-section>
+              <h4>Lemmy Options</h4>
+            </q-item-section>
+          </template>
+          <q-input v-model="lemmyImageUrl" label="Image URL" standout class="q-mt-md" />
+          <div style="display: flex; align-items: center">
+            <q-icon name="fa-solid fa-users-line" size="md" class="q-mr-md" />
+            <h4>Communities</h4>
+          </div>
           <LemmyCommunitiesSearchComponent v-for="(account, index) in accounts.accounts.filter(a => a.platform === 'lemmy')" :key="index" :model-value="account" />
         </q-expansion-item>
 
-        <div style="display: flex; align-items: center">
-          <q-icon name="fa-solid fa-calendar-days" size="md" class="q-mr-md" />
-          <h4>Schedule Post</h4>
-        </div>
+        <q-separator v-if="accounts.accounts.filter(a => a.platform === 'lemmy' && a.enabled).length > 0" />
 
-        <q-input standout v-model="date">
-          <template v-slot:prepend>
-            <q-icon name="event" class="cursor-pointer">
-              <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-                <q-date v-model="date" mask="YYYY-MM-DD HH:mm">
-                  <div class="row items-center justify-end">
-                    <q-btn v-close-popup label="Close" color="primary" flat />
-                  </div>
-                </q-date>
-              </q-popup-proxy>
-            </q-icon>
-          </template>
+<!--        <div>-->
+<!--          <div style="display: flex; align-items: center">-->
+<!--            <q-icon name="fa-solid fa-calendar-days" size="md" class="q-mr-md" />-->
+<!--            <h4>Schedule Post</h4>-->
+<!--          </div>-->
 
-          <template v-slot:append>
-            <q-icon name="access_time" class="cursor-pointer">
-              <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-                <q-time v-model="date" mask="YYYY-MM-DD HH:mm" format24h>
-                  <div class="row items-center justify-end">
-                    <q-btn v-close-popup label="Close" color="primary" flat />
-                  </div>
-                </q-time>
-              </q-popup-proxy>
-            </q-icon>
-          </template>
-        </q-input>
+<!--          <q-input standout v-model="date">-->
+<!--            <template v-slot:prepend>-->
+<!--              <q-icon name="event" class="cursor-pointer">-->
+<!--                <q-popup-proxy cover transition-show="scale" transition-hide="scale">-->
+<!--                  <q-date v-model="date" mask="YYYY-MM-DD HH:mm">-->
+<!--                    <div class="row items-center justify-end">-->
+<!--                      <q-btn v-close-popup label="Close" color="primary" flat />-->
+<!--                    </div>-->
+<!--                  </q-date>-->
+<!--                </q-popup-proxy>-->
+<!--              </q-icon>-->
+<!--            </template>-->
+
+<!--            <template v-slot:append>-->
+<!--              <q-icon name="access_time" class="cursor-pointer">-->
+<!--                <q-popup-proxy cover transition-show="scale" transition-hide="scale">-->
+<!--                  <q-time v-model="date" mask="YYYY-MM-DD HH:mm" format24h>-->
+<!--                    <div class="row items-center justify-end">-->
+<!--                      <q-btn v-close-popup label="Close" color="primary" flat />-->
+<!--                    </div>-->
+<!--                  </q-time>-->
+<!--                </q-popup-proxy>-->
+<!--              </q-icon>-->
+<!--            </template>-->
+<!--          </q-input>-->
+<!--        </div>-->
 
         <q-btn
           label="Post"
