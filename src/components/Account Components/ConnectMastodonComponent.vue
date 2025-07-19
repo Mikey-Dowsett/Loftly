@@ -2,28 +2,41 @@
 import { ref } from 'vue'
 import { eventBus } from 'src/tools/event-bus';
 import { useMastodonStore } from 'stores'
+import type { Instances } from 'stores/models';
+import { useErrorHandling } from 'src/composables/useErrorHandling';
 
+const { handleError } = useErrorHandling();
 const mastodon = useMastodonStore();
 const modelValue = defineModel<boolean | null>({ default: false });
 const instances = mastodon.getInstances;
-const instanceId = ref(0)
+const instance = ref('')
 
-function connectAccount() {
-  const scope = 'read write';
-  const selectedInstance = instances?.at(instanceId.value);
-  const redirectUri = 'http://localhost:9000/mastodon/callback'
-  console.log(selectedInstance)
+async function connectAccount() {
+  try {
+    if (!instances.find((x: Instances) => x.instance === instance.value)) {
+      await mastodon.registerInstance(instance.value);
+      await new Promise(resolve => setTimeout(resolve, 2000));
+    }
 
-  const authUrl = `https://${selectedInstance?.instance}/oauth/authorize` +
-    `?client_id=${selectedInstance?.client_key}` +
-    `&redirect_uri=${encodeURIComponent(redirectUri)}` +
-    `&response_type=code` +
-    `&scope=${encodeURIComponent(scope)}` +
-    `&state=${instanceId.value}`;
+    const scope = 'read write';
+    const selectedInstance = instances.find((x: Instances) => x.instance === instance.value);
+    const redirectUri = 'http://localhost:9000/mastodon/callback';
+    console.log('Selected Instance', selectedInstance);
+    if (!selectedInstance) throw new Error('Instance not found. Try refreshing the page');
 
-  console.log("Redirecting to:", authUrl);
+    const authUrl = `https://${instance.value}/oauth/authorize` +
+      `?client_id=${selectedInstance?.client_key}` +
+      `&redirect_uri=${encodeURIComponent(redirectUri)}` +
+      `&response_type=code` +
+      `&scope=${encodeURIComponent(scope)}` +
+      `&state=${instance.value}`;
 
-  window.location.href = authUrl;
+    console.log("Redirecting to Mastodon:", authUrl);
+
+    window.location.href = authUrl;
+  } catch (error) {
+    handleError(error);
+  }
 }
 
 function closeWindow() {
@@ -36,18 +49,9 @@ function closeWindow() {
     <q-card>
       <h4 class="q-mt-lg">Connect Mastodon Account</h4>
       <q-form @submit.prevent="connectAccount" autocomplete="off">
-        <div style="display: flex;">
-        <q-btn-dropdown color="primary" :label="instances.at(instanceId)?.instance">
-          <q-list>
-            <q-item v-for="(instance, i) in instances" :key="i" clickable v-close-popup @click="instanceId=i">
-              <q-item-section>
-                <q-item-label>{{ instance.instance }}</q-item-label>
-              </q-item-section>
-            </q-item>
-          </q-list>
-        </q-btn-dropdown>
-        <q-btn type="Submit" label="Connect" class="submit" color="positive" />
-        </div>
+        <q-input v-model="instance" standout label="Instance"
+                 hint="e.g. mastodon.social" required/>
+        <q-btn type="submit" label="Connect" class="submit" color="positive" />
       </q-form>
       <q-btn icon="fa-solid fa-close" flat round class="close" @click="closeWindow" />
     </q-card>

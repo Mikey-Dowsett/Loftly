@@ -20,7 +20,7 @@ onMounted(async () => {
     return await router.push('/');
   }
   const code = route.query.code as string;
-  const id = Number(route.query.state);
+  const instance = String(route.query.state);
 
   if (!code) {
     $q.notify({
@@ -28,11 +28,11 @@ onMounted(async () => {
       message: 'No code returned from Mastodon.',
       position: 'top-right'
     });
-    return await router.push('/post');
+    return await router.push('/settings/connections');
   }
 
   try {
-    const response = await mastodon.connectAccount(code, id);
+    const response = await mastodon.connectAccount(code, instance);
 
     if(response === 'Account Connected')
       $q.notify({
@@ -46,7 +46,7 @@ onMounted(async () => {
         message: response,
         position: 'top-right'
       })
-    return await router.push('/post');
+    return await router.push('/settings/connections');
   } catch (error) {
     console.error(error);
     $q.notify({
@@ -54,7 +54,7 @@ onMounted(async () => {
       message: 'Mastodon connection failed.',
       position: 'top-right'
     });
-    return await router.push('/post');
+    return await router.push('/settings/connections');
   }
 });
 </script>

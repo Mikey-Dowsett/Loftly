@@ -28,7 +28,7 @@ onMounted(async () => {
       message: 'No code returned from Pixelfed.',
       position: 'top-right'
     });
-    return await router.push('/post');
+    return await router.push('/settings/connections');
   }
 
   try {
@@ -46,7 +46,7 @@ onMounted(async () => {
         message: typeof response === 'string' ? response : 'Unexpected Pixelfed response.',
         position: 'top-right'
       })
-    return await router.push('/post');
+    return await router.push('/settings/connections');
   } catch (error) {
     console.error(error);
     $q.notify({
@@ -54,7 +54,7 @@ onMounted(async () => {
       message: 'Pixelfed connection failed.',
       position: 'top-right'
     });
-    return await router.push('/post');
+    return await router.push('/settings/connections');
   }
 });
 </script>

@@ -47,19 +47,32 @@ eventBus.on('logged-in', () => {
           </q-item>
 
           <q-item v-if="auth.user" clickable to="/post" tag="router-link" active-class="link-active">
+            <q-item-section side>
+              <q-icon name="fa-solid fa-feather-pointed" size="sm" color="primary" />
+            </q-item-section>
             <q-item-section>
               <div class="text-weight-bold">Create Post</div>
             </q-item-section>
           </q-item>
 
+          <q-item v-if="auth.user" clickable to="/settings" tag="router-link" active-class="link-active">
+            <q-item-section side>
+              <q-icon name="fa-solid fa-cog" size="sm" color="primary" />
+            </q-item-section>
+            <q-item-section>
+              <div class="text-weight-bold">Settings</div>
+            </q-item-section>
+          </q-item>
+
           <q-item clickable @click="toggleDark">
+            <q-item-section side>
+              <q-icon :name="Dark.mode ? 'fa-solid fa-moon' : 'fa-solid fa-sun'" size="sm"
+                color="primary" />
+            </q-item-section>
             <q-item-section>
               <div class="text-weight-bold">
                 {{ Dark.mode ? 'Dark Mode' : 'Light Mode' }}
               </div>
-            </q-item-section>
-            <q-item-section>
-              <q-icon :name="Dark.mode ? 'fa-solid fa-moon' : 'fa-solid fa-sun'" />
             </q-item-section>
           </q-item>
 

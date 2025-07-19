@@ -27,6 +27,7 @@ const imageFileInput = ref();
 const lemmyImageUrl = ref('')
 const video = ref();
 const date = ref('');
+const nsfw = ref(false);
 
 const loading = ref(false);
 const loadingProgress = ref(0);
@@ -96,7 +97,7 @@ const onSubmit = async () => {
       title: title.value || null,
       message: message.value || null,
       language: 'EN',
-      nsfw: false,
+      nsfw: nsfw.value || false,
       connected_accounts: accounts.enabledAccounts,
       media_filenames: uploadedImageFilenames.length > 0 ? uploadedImageFilenames : null,
       lemmy_image_url: lemmyImageUrl.value,
@@ -358,7 +359,9 @@ onUnmounted(() => {
         </div>
         <q-tabs v-model="media_tab" indicator-color="transparent">
           <q-tab name="images" icon="fa-solid fa-image" label="Images" />
-          <q-tab name="videos" icon="fa-solid fa-film" label="Videos" />
+          <q-tab name="videos" icon="fa-solid fa-film" label="Videos" disable>
+            <q-tooltip>Please upgrade to pro to upload videos</q-tooltip>
+          </q-tab>
         </q-tabs>
         <q-file
           standout
@@ -480,6 +483,12 @@ onUnmounted(() => {
 <!--          </q-input>-->
 <!--        </div>-->
 
+        <q-card-section style="display: flex; align-items: center; margin: 0;">
+          <q-icon name="fa-solid fa-crown" size="lg" class="q-mr-md" color="accent" />
+          <h4>NSFW</h4>
+          <q-toggle v-model="nsfw" class="q-mr-none q-ml-auto" disable />
+          <q-tooltip>Please upgrade to pro to use nsfw toggle</q-tooltip>
+        </q-card-section>
         <q-btn
           label="Post"
           type="submit"

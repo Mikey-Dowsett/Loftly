@@ -3,6 +3,7 @@ import { createPinia } from 'pinia'
 import { useAuthStore } from './auth'
 import { useStorageStore } from './storage'
 import { useAccountsStore } from './accounts'
+import { useHistoryStore } from './history'
 import { useMastodonStore } from './mastodon'
 import { useBlueskyStore } from './bluesky';
 import { useLemmyStore } from './lemmy'
@@ -11,6 +12,7 @@ import { usePixelfedStore} from './pixelfed';
 export async function initializeStores() {
   const authStore = useAuthStore();
   const connectedAccountsStore = useAccountsStore();
+  const historyStore = useHistoryStore();
   const mastodonStore = useMastodonStore();
   const pixelfedStore = usePixelfedStore();
 
@@ -24,6 +26,7 @@ export async function initializeStores() {
   if (authStore.user) {
     console.log("Initializing user store");
     await Promise.all([
+      historyStore.init(),
       mastodonStore.init(),
       pixelfedStore.init(),
     ]);
@@ -34,6 +37,7 @@ export {
   useAuthStore,
   useStorageStore,
   useAccountsStore,
+  useHistoryStore,
   useMastodonStore,
   useBlueskyStore,
   useLemmyStore,

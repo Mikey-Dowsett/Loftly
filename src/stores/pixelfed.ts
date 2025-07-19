@@ -33,6 +33,7 @@ export const usePixelfedStore = defineStore('pixelfed', {
       this.loading = false;
 
       if (error) throw error;
+      return this.instances;
     },
 
     async registerInstance(instance: string) {
@@ -66,7 +67,9 @@ export const usePixelfedStore = defineStore('pixelfed', {
           client_secret: data.client_secret,
         });
 
-        await this.fetchInstances();
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        return await this.fetchInstances();
       } catch (error) {
         handleError(error);
       }
@@ -75,6 +78,10 @@ export const usePixelfedStore = defineStore('pixelfed', {
     async connectAccount(code: string, instanceUrl: string) {
       const auth = useAuthStore();
       if (!auth.user) return;
+
+      if (this.instances.length === 0) {
+        await this.fetchInstances();
+      }
 
       this.connecting = true;
       const redirectUri = 'http://localhost:9000/pixelfed/callback';

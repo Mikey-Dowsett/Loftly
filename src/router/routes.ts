@@ -12,6 +12,30 @@ const routes: RouteRecordRaw[] = [
   },
 
   {
+    path: '/history',
+    component: () => import('pages/PostHistoryPage.vue'),
+  },
+
+  {
+    path: '/settings',
+    component: () => import('pages/SettingsPage.vue'),
+    children: [
+      {
+        path: '',
+        redirect: '/settings/account',
+      },
+      {
+        path: '/settings/account',
+        component: () => import('components/Settings/AccountSettings.vue'),
+      },
+      {
+        path: '/settings/connections',
+        component: () => import('components/Settings/ConnectionSettings.vue'),
+      },
+    ],
+  },
+
+  {
     path: '/mastodon/callback',
     component: () => import('pages/MastodonCallback.vue'),
   },

@@ -1,10 +1,18 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, onMounted } from 'vue';
+import { useQuasar } from 'quasar'
+import { eventBus } from 'src/tools/event-bus';
 import { useAccountsStore } from 'stores';
-import { Platform } from 'src/stores/models';
+import { Platform, type ConnectedAccount } from 'src/stores/models';
+
+import ConnectLemmyComponent from 'components/Account Components/ConnectLemmyComponent.vue';
+import ConnectPixelfedComponent from 'components/Account Components/ConnectPixelfedComponent.vue';
+import ConnectMastodonComponent from 'components/Account Components/ConnectMastodonComponent.vue';
+import ConnectBlueSkyComponent from 'components/Account Components/ConnectBlueskyComponent.vue';
+
+const $q = useQuasar();
 
 const accounts = useAccountsStore();
-
 const platforms: { name: Platform; label: string; icon: string; color: string }[] = [
   {
     name: Platform.mastodon,
@@ -32,19 +40,53 @@ const platforms: { name: Platform; label: string; icon: string; color: string }[
   },
 ];
 
+const newBlueskyAccount = ref<boolean>(false);
+const newMastodonAccount = ref<boolean>(false);
+const newLemmyAccount = ref<boolean>(false);
+const newPixelfedAccount = ref<boolean>(false);
+const refreshKey = ref(0);
+
 const isDeleteDialogOpen = ref(false);
 const confirmingDelete = ref<number | null>(null);
 
-watch(
-  () => accounts.accounts,
-  () => {
-  },
-  { deep: true },
-);
+eventBus.on('close-bluesky-login', () => {
+  newBlueskyAccount.value = false;
+  refreshKey.value++;
+});
+eventBus.on('close-mastodon-login', () => {
+  newMastodonAccount.value = false;
+  refreshKey.value++;
+});
+eventBus.on('close-lemmy-login', () => {
+  newLemmyAccount.value = false;
+  refreshKey.value++;
+});
+eventBus.on('close-pixelfed-login', () => {
+  newPixelfedAccount.value = false;
+  refreshKey.value++;
+});
+
+async function toggleAccount(account: ConnectedAccount) {
+  try {
+    await accounts.toggleAccountEnabled(account.id);
+  } catch (err) {
+    console.error(err);
+    account.enabled = !account.enabled;
+    $q.notify({
+      type: 'negative',
+      message: 'Failed to update account',
+      position: 'top-right',
+    })
+  }
+}
+
+onMounted( async () => {
+  await accounts.fetchConnectedAccounts()
+})
 </script>
 
 <template>
-  <q-card v-if="accounts.accounts" class="account-wrapper">
+  <q-card class="wrapper">
     <!--Account Interaction-->
     <q-card-section v-for="(item, index) in accounts.accounts" :key="index" class="card-section">
       <template v-if="(platforms.find((x) => x.name === item.platform)?.icon || '').startsWith('/icons/')">
@@ -63,8 +105,8 @@ watch(
         <q-tooltip>Open this account page</q-tooltip>
       </q-btn>
       <div class="actions">
-        <q-toggle color="positive" v-model="item.enabled" size="sm">
-          <q-tooltip>Post to this account?</q-tooltip>
+        <q-toggle color="positive" v-model="item.enabled" size="sm" @update:model-value="toggleAccount(item)">
+          <q-tooltip>Enable this account by default?</q-tooltip>
         </q-toggle>
         <q-btn
           icon="fa-solid fa-trash"
@@ -119,24 +161,38 @@ watch(
       </q-dialog>
       <!--Delete Account Dialog-->
     </q-card-section>
-
-    <q-btn :label="`Add New Account`" class="submit q-btn-new" color="positive" size="md" to="/settings/connections" />
+    <q-card-section>
+      <h4>Add New Accounts</h4>
+      <div style="display: flex">
+        <q-btn label="Mastodon" icon="fa-brands fa-mastodon"  style="color: #5d52e9" flat no-caps
+          @click="newMastodonAccount = true"/>
+        <q-btn label="Bluesky" icon="fa-brands fa-bluesky" style="color: #1185fe" flat no-caps
+          @click="newBlueskyAccount = true"/>
+        <q-btn flat no-caps @click="newPixelfedAccount = true">
+          <template v-slot:default>
+            <q-img src="/icons/pixelfed.svg" style="width: 35px; height: 35px; margin-right: 5px"/>
+            Pixelfed
+          </template>
+        </q-btn>
+        <q-btn flat no-caps @click="newLemmyAccount = true">
+          <template v-slot:default>
+            <q-img src="/icons/lemmy.svg" style="width: 35px; height: 35px; margin-right: 5px"/>
+            Lemmy
+          </template>
+        </q-btn>
+      </div>
+    </q-card-section>
   </q-card>
+  <ConnectBlueSkyComponent v-if="newBlueskyAccount" v-model="newBlueskyAccount" :key="refreshKey" />
+  <ConnectMastodonComponent v-if="newMastodonAccount" v-model="newMastodonAccount" :key="refreshKey" />
+  <ConnectLemmyComponent v-if="newLemmyAccount" v-model="newLemmyAccount" :key="refreshKey" />
+  <ConnectPixelfedComponent v-if="newPixelfedAccount" v-model="newPixelfedAccount" :key="refreshKey" />
 </template>
 
 <style scoped>
-.account-wrapper {
-  max-height: 75%;
-  width: 26%;
-  padding: 1rem;
-  margin: 3rem auto;
-  overflow-y: auto;
-
-  position: fixed;
-  top: 50%;
-  transform: translateY(-50%);
-  left: 2.5%;
-  z-index: 2;
+.wrapper {
+  width: 75%;
+  margin: 0 auto;
 }
 .card-section {
   display: flex;
@@ -158,6 +214,8 @@ watch(
   margin-right: auto;
 }
 .dialog-btn {
+  margin-right: 0;
+  margin-left: auto;
   padding: 0 1.5rem;
 }
 </style>

@@ -26,3 +26,32 @@ export type Instances = {
   client_key: string,
   client_secret: string,
 }
+
+export type Posts = {
+  id: number,
+  user_id: string,
+  content: string,
+  status: string,
+  created_at: string,
+}
+
+export type AccountPost = {
+  id: number,
+  post_id: number,
+  user_id: string,
+  platform: string,
+  handle: string,
+  status: string,
+  message: string,
+  post_url: string,
+  external_post_id: string,
+  instance: string,
+  created_at: string,
+}
+
+export enum Platform {
+  mastodon = 'mastodon',
+  bluesky = 'bluesky',
+  pixelfed = 'pixelfed',
+  lemmy = 'lemmy',
+}

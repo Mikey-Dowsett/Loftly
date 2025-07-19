@@ -10,17 +10,16 @@ const instances = pixelfedStore.getInstances;
 const instance = ref('')
 
 async function connectAccount() {
-  console.log('connecting account')
   if (!instances.find((x: Instances) => x.instance === instance.value)) {
-    console.log("Adding new instance")
     await pixelfedStore.registerInstance(instance.value);
+    await new Promise(resolve => setTimeout(resolve, 2000));
   }
 
   const scope = 'read write';
   const selectedInstance = instances.find((x: Instances) => x.instance === instance.value);
   const redirectUri = 'http://localhost:9000/pixelfed/callback';
 
-  if (!selectedInstance) return;
+  if (!selectedInstance) throw new Error('Instance not found');
 
   const authUrl = `https://${selectedInstance.instance}/oauth/authorize` +
     `?client_id=${selectedInstance.client_key}` +

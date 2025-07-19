@@ -3,10 +3,12 @@ import { createClient } from '@supabase/supabase-js'
 import { type Instances } from './models'
 import { eventBus } from '../tools/event-bus'
 import { useAuthStore, useAccountsStore } from '.'
+import { useErrorHandling } from 'src/composables/useErrorHandling';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const { handleError } = useErrorHandling();
 
 export const useMastodonStore = defineStore('mastodon', {
   state: () => ({
@@ -31,9 +33,48 @@ export const useMastodonStore = defineStore('mastodon', {
       this.loading = false;
 
       if (error) throw error;
+      return this.instances;
     },
 
-    async connectAccount(code: string, instanceId: number) {
+    async registerInstance(instance: string) {
+      const redirectUri = 'http://localhost:9000/mastodon/callback';
+
+      try {
+        const response = await fetch(`https://${instance}/api/v1/apps`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            client_name: 'Loftly',
+            redirect_uris: redirectUri,
+            scopes: 'read write',
+            website: 'http://localhost:9000',
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to register app: ${response.statusText}`);
+        }
+
+        const instanceData = await response.json();
+
+        await supabase.from('instances').insert({
+          platform: 'mastodon',
+          instance,
+          client_key: instanceData.client_id,
+          client_secret: instanceData.client_secret,
+        });
+
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        await this.fetchInstances();
+      } catch (error) {
+        handleError(error);
+      }
+    },
+
+    async connectAccount(code: string, instanceUrl: string) {
       const auth = useAuthStore();
       if (!auth.user) return 'Not logged in';
 
@@ -43,9 +84,9 @@ export const useMastodonStore = defineStore('mastodon', {
 
       this.connecting = true;
       const redirectUri = 'http://localhost:9000/mastodon/callback';
-      const instance = this.instances.at(instanceId);
+      const instance = this.instances.find((x: Instances) => x.instance === instanceUrl);
 
-      if(!instance) return `Missing instance ${instanceId}`;
+      if(!instance) return `Missing instance ${instance}`;
 
       try {
         // Exchange auth code for access token

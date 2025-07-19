@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { createClient } from '@supabase/supabase-js'
-import { type ConnectedAccount } from './models';
+import { type ConnectedAccount, type Platform } from './models';
 import { useAuthStore } from './auth'
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
@@ -36,9 +36,19 @@ export const useAccountsStore = defineStore('accounts', {
 
       this.accounts = (data || []).map(account => ({
         ...account,
-        enabled: true, // or false, or something derived
         lemmy_communities: [],
       }));
+
+      const PLATFORM_ORDER: Record<Platform, number> = {
+        mastodon: 1,
+        bluesky: 2,
+        pixelfed: 3,
+        lemmy: 4
+      };
+
+      this.accounts.sort((a, b) => {
+        return (PLATFORM_ORDER[a.platform as Platform] || 999) - (PLATFORM_ORDER[b.platform as Platform] || 999);
+      });
 
       this.loading = false;
       if (error) throw error;
@@ -59,11 +69,17 @@ export const useAccountsStore = defineStore('accounts', {
       return true;
     },
 
-    toggleAccountEnabled(id: number) {
+    async toggleAccountEnabled(id: number) {
       const account = this.accounts.find(acc => acc.id === id);
-      if (account) {
-        account.enabled = !account.enabled;
-      }
+      if (!account) return;
+      console.log(account);
+
+      const { error } = await supabase.from('linked_accounts')
+        .update({enabled: account.enabled})
+        .eq('id', id);
+
+      if (error) throw error;
+      await this.fetchConnectedAccounts();
     },
 
     clearAccounts() {
