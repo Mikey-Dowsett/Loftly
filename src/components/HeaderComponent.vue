@@ -1,27 +1,31 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { Dark, QMenu } from 'quasar'
-import { eventBus } from '../tools/event-bus'
-import { useAuthStore } from 'stores'
-import LoginWindow from '../components/LoginWindow.vue'
+import { ref } from 'vue';
+import { Dark, QMenu } from 'quasar';
+import { eventBus } from '../tools/event-bus';
+import { useAuthStore } from 'stores';
+import LoginWindow from '../components/LoginWindow.vue';
 
-const showLoginWindow = ref(false)
-const menuRef = ref<InstanceType<typeof QMenu> | null>(null)
+const showLoginWindow = ref(false);
+const menuRef = ref<InstanceType<typeof QMenu> | null>(null);
 
-const auth = useAuthStore()
+const auth = useAuthStore();
 
 const showLogin = () => {
-  showLoginWindow.value = true
+  showLoginWindow.value = true;
 }
 
 const toggleDark = () => {
-  Dark.set(!Dark.mode)
-  console.log(Dark.mode)
+  Dark.set(!Dark.mode);
+  console.log(Dark.mode);
 }
 
 eventBus.on('logged-in', () => {
-  showLoginWindow.value = false
-})
+  showLoginWindow.value = false;
+});
+
+eventBus.on('show-login', () => {
+  showLoginWindow.value = true;
+});
 </script>
 
 <template>
@@ -55,6 +59,15 @@ eventBus.on('logged-in', () => {
             </q-item-section>
           </q-item>
 
+          <q-item v-if="auth.user" clickable to="/history" tag="router-link" active-class="link-active">
+            <q-item-section side>
+              <q-icon name="fa-solid fa-clock" size="sm" color="primary" />
+            </q-item-section>
+            <q-item-section>
+              <div class="text-weight-bold">History</div>
+            </q-item-section>
+          </q-item>
+
           <q-item v-if="auth.user" clickable to="/settings" tag="router-link" active-class="link-active">
             <q-item-section side>
               <q-icon name="fa-solid fa-cog" size="sm" color="primary" />
@@ -84,6 +97,8 @@ eventBus.on('logged-in', () => {
         </q-list>
       </q-menu>
     </q-btn>
+    <q-btn v-show="!auth.user" to="/pricing" class="account"
+           label="Pricing" flat size="lg" />
     <q-btn v-show="!auth.user" @click="showLogin" class="account"
            label="Login" flat color="positive" size="lg" />
   </div>

@@ -2,12 +2,12 @@
   <div class="landing-page">
     <!-- Hero Section -->
     <section style="margin-top: 3rem;">
-      <q-img :src="Dark.mode ? 'images/media-pile-light.png' : 'images/media-pile-dark.png'" style="max-width: 400px;" class="q-mb-sm" />
+      <q-img :src="'images/uploading.svg'" style="max-width: 400px;" class="q-mb-sm" />
       <h1 class="text-h3 text-weight-bold q-mb-sm">Where all your accounts take flight</h1>
       <p class="text-subtitle1 q-mb-md">
         Draft once and publish to Bluesky, Mastodon, Lemmy, and more – instantly.
       </p>
-      <q-btn color="primary" label="Start Posting Now" size="lg" to="/post" text-color="black" />
+      <q-btn color="primary" text-color="black" label="Start Posting Now" size="lg" to="/post" class="call-to-action" />
 <!--      <q-btn flat label="Explore How It Works" color="secondary" to="#how-it-works" />-->
     </section>
 
@@ -19,7 +19,7 @@
         <h4 class="text-weight-bold" >Why Loftly?</h4>
       </div>
       <div class="row q-col-gutter-lg" style="margin: auto">
-        <q-card v-for="feature in features" :key="feature.title" >
+        <q-card v-for="feature in features" :key="feature.title" class="feature-card" >
           <q-card-section>
             <q-icon :name="feature.icon" size="40px" color="accent" />
             <div class="text-h6 text-weight-bold q-mb-xs">{{ feature.title }}</div>
@@ -33,7 +33,7 @@
             <h4>Supported Platforms</h4>
           </q-card-section>
           <div class="platforms-grid">
-            <q-card-section v-for="platform in platforms" :key="platform.title">
+            <q-card-section v-for="platform in platforms" :key="platform.title" class="platform">
               <q-icon v-if="platform.icon.endsWith('.svg')" :name="'img:' + platform.icon"
                       :style="{color: platform.color}" size="40px" />
               <q-icon v-else :name="platform.icon"
@@ -59,14 +59,12 @@
     <!-- Call to Action -->
     <section class="q-mb-xl text-center">
       <h2 class="text-h4 q-my-md">Ready to streamline your fediverse posts?</h2>
-      <q-btn size="lg" color="primary" label="Get Started Free" to="/post" text-color="black" />
+      <q-btn size="lg" color="primary" label="Get Started Free" to="/post" text-color="black" class="call-to-action" />
     </section>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Dark } from 'quasar';
-
 const features = [
   {
     icon: 'fa-solid fa-pencil',
@@ -127,17 +125,45 @@ const platforms = [
 
 <style scoped>
 .landing-page {
-  max-width: 80%;
+  max-width: 1200px;
   margin: 0 auto;
+  padding: 0 1rem;
 }
-.q-card {
-  margin-left: 1rem;
-  margin-right: 1rem;
-  width: 30%;
-  height: 12rem;
+.feature-card {
+  margin: 1rem;
+  flex: 1 1 300px;
+  max-width: 400px;
+  min-width: 280px;
+  height: auto;
+  transition: transform 0.2s ease;
+}
+.feature-card:hover {
+  transform: scale(1.05);
 }
 .q-icon {
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  font-size: 48px;
+}
+.platforms-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+  padding: 2rem;
+}
+.platform {
+  transition: transform 0.2s ease;
+}
+.platform:hover {
+  transform: scale(1.05);
+}
+
+.call-to-action {
+  transition: all 0.2s ease;
+}
+
+.call-to-action:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 10px var(--q-primary);
 }
 
 section {
@@ -156,19 +182,24 @@ section {
   padding: 0;
 }
 
-.platforms-grid {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 2rem;
-  flex-wrap: wrap;
-  width: 100%;
-  padding: 1rem 0;
-}
-
 .demo-image {
   width: 90%;
-  box-shadow: 0 0 10px var(--q-primary);
+  max-width: 1000px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
   border-radius: 1rem;
+  transition: transform 0.3s ease;
+}
+.demo-image:hover {
+  transform: scale(1.05);
+}
+@media (max-width: 600px) {
+  .landing-page {
+    max-width: 100%;
+  }
+
+  .platforms-grid {
+    gap: 1rem;
+    padding: 1rem;
+  }
 }
 </style>

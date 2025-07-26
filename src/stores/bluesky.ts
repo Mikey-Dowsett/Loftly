@@ -1,12 +1,8 @@
 import { defineStore } from 'pinia'
 import { AtpAgent } from '@atproto/api'
-import { createClient } from '@supabase/supabase-js'
+import { supabase } from '../lib/supabase'
 import { eventBus } from '../tools/event-bus'
 import { useAuthStore, useAccountsStore } from './'
-
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 export const useBlueskyStore = defineStore('bluesky', {
   state: () => ({

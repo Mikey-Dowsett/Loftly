@@ -1,29 +1,15 @@
 <template>
-  <q-layout view="lHh Lpr LFf">
-    <HeaderComponent />
-    <router-view v-if="isReady" />
-<!--    <FooterComponent />-->
+  <q-layout>
+    <router-view/>
   </q-layout>
 </template>
-
-<script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import { initializeStores } from 'stores'
-import HeaderComponent from 'src/components/HeaderComponent.vue'
-// import FooterComponent from 'src/components/FooterComponent.vue'
-
-const isReady = ref(false);
-
-onMounted(async () => {
-  await initializeStores();
-  isReady.value = true;
-});
-</script>
 
 <style lang="scss">
 .body--light {
   --q-primary: #6d9cd8;
+  --q-primary-rgb: 109, 156, 216;
   --q-secondary: #a1d6e2;
+  --q-secondary-rgb: 161, 214, 226;
   --q-accent: #c44569;
   --q-background: #F5F5F5;
   --q-text: #1B1B1B;
@@ -37,7 +23,9 @@ onMounted(async () => {
 }
 .body--dark {
   --q-primary: #6d9cd8;
+  --q-primary-rgb: 109, 156, 216;
   --q-secondary: #a1d6e2;
+  --q-secondary-rgb: 161, 214, 226;
   --q-accent: #c44569;
   --q-background: #1B1B1B;
   --q-text: #F5F5F5;
@@ -50,3 +38,5 @@ onMounted(async () => {
   --q-mastodon: #5d52e9;
 }
 </style>
+<script setup lang="ts">
+</script>

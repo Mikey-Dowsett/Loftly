@@ -1,9 +1,6 @@
-import { defineStore } from 'pinia'
-import { createClient, type User, type Session } from '@supabase/supabase-js'
-
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+import { defineStore } from 'pinia';
+import { supabase } from '../lib/supabase'
+import { type User, type Session } from '@supabase/supabase-js';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -39,6 +36,20 @@ export const useAuthStore = defineStore('auth', {
       return true;
     },
 
+    async setSession(access_token: string, refresh_token: string) {
+      this.loading = true;
+      const { data, error } = await supabase.auth.setSession({
+        access_token,
+        refresh_token,
+      });
+
+      if (error) throw error;
+
+      this.session = data.session;
+      this.user = data.session?.user || null;
+      this.loading = false;
+    },
+
     async signOut() {
       this.loading = true;
       await supabase.auth.signOut();
@@ -53,9 +64,21 @@ export const useAuthStore = defineStore('auth', {
       const { error } = await supabase.auth.signUp({ email, password });
       this.loading = false;
       if (error) throw error;
+    },
 
-      //Create user folder in photos
-      if(!this.user) return;
+    async verifyEmailWithCode(email: string, token: string) {
+      this.loading = true;
+      const { data: { session }, error } = await supabase.auth.verifyOtp({
+        email: email,
+        token: token,
+        type: 'signup',
+      });
+
+      this.loading = false;
+
+      if (error) throw error;
+      this.session = session;
+
       await this.fetchUser();
       await this.createUserStorageFolders();
     },
@@ -96,6 +119,18 @@ export const useAuthStore = defineStore('auth', {
           connectedAccountsStore.clearAccounts();
         }
       });
+    },
+
+    async updateUserEmail(newEmail: string,) {
+      const { data, error } = await supabase.auth.updateUser(
+        { email: newEmail },
+        {
+          emailRedirectTo: 'http://localhost:9000/email-confirmed'
+        }
+      );
+
+      if (error) throw error;
+      console.log(data);
     },
 
     async init() {

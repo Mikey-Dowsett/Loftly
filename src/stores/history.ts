@@ -1,11 +1,7 @@
 import { defineStore } from 'pinia';
-import { createClient } from '@supabase/supabase-js'
+import { supabase } from '../lib/supabase'
 import { useAuthStore } from './auth'
 import { type Posts, type AccountPost } from './models';
-
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 export const useHistoryStore = defineStore('history', {
   state: () => ({

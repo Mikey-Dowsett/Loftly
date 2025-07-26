@@ -1,11 +1,7 @@
 import { defineStore } from 'pinia';
-import { createClient } from '@supabase/supabase-js'
+import { supabase } from '../lib/supabase'
 import { type ConnectedAccount, type Platform } from './models';
 import { useAuthStore } from './auth'
-
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 export const useAccountsStore = defineStore('accounts', {
   state: () => ({

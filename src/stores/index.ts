@@ -1,6 +1,7 @@
 import { defineStore } from '#q-app/wrappers'
 import { createPinia } from 'pinia'
 import { useAuthStore } from './auth'
+import { useSubscriptionStore } from './subscription'
 import { useStorageStore } from './storage'
 import { useAccountsStore } from './accounts'
 import { useHistoryStore } from './history'
@@ -11,6 +12,7 @@ import { usePixelfedStore} from './pixelfed';
 
 export async function initializeStores() {
   const authStore = useAuthStore();
+  const subscriptionStore = useSubscriptionStore();
   const connectedAccountsStore = useAccountsStore();
   const historyStore = useHistoryStore();
   const mastodonStore = useMastodonStore();
@@ -19,13 +21,12 @@ export async function initializeStores() {
   // Initialize auth first
   await authStore.init();
 
-  // Initialize accounts second
-  await connectedAccountsStore.init();
-
   // Initialize other stores if user is authenticated
   if (authStore.user) {
     console.log("Initializing user store");
     await Promise.all([
+      connectedAccountsStore.init(),
+      subscriptionStore.init(),
       historyStore.init(),
       mastodonStore.init(),
       pixelfedStore.init(),
@@ -35,6 +36,7 @@ export async function initializeStores() {
 
 export {
   useAuthStore,
+  useSubscriptionStore,
   useStorageStore,
   useAccountsStore,
   useHistoryStore,

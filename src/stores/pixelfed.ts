@@ -1,13 +1,10 @@
 import { defineStore } from 'pinia'
-import { createClient } from '@supabase/supabase-js'
+import { supabase } from '../lib/supabase'
 import { type Instances } from './models'
 import { eventBus } from '../tools/event-bus'
 import { useAuthStore, useAccountsStore } from '.'
 import { useErrorHandling } from 'src/composables/useErrorHandling';
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const { handleError } = useErrorHandling();
 
 export const usePixelfedStore = defineStore('pixelfed', {

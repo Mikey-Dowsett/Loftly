@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { watch, ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { QExpansionItem, useQuasar } from 'quasar';
 import axios from 'axios';
@@ -29,9 +29,13 @@ const video = ref();
 const date = ref('');
 const nsfw = ref(false);
 
+const maxCharCount = ref(300);
+
 const loading = ref(false);
 const loadingProgress = ref(0);
 const loadingStep = ref('');
+
+const showImageLimits = ref(false);
 
 const onSubmit = async () => {
   loadingProgress.value = 0;
@@ -281,6 +285,30 @@ function shiftFiles(index: number, dir: number) {
   }
 }
 
+function updateLimits() {
+  const PLATFORM_LIMITS: Record<string, number> = {
+    bluesky: 300,
+    mastodon: 500,
+    lemmy: 10000,
+    pixelfed: 500,
+  };
+
+  const enabledAccounts = accounts.accounts.filter(acc => acc.enabled);
+
+  const limits = enabledAccounts
+    .map(acc => PLATFORM_LIMITS[acc.platform])
+    .filter(limit => limit !== undefined);
+
+  // Default to 10000 if no limits found (no enabled accounts or unknown platforms)
+  maxCharCount.value = limits.length > 0 ? Math.min(...limits) : 10000;
+}
+
+watch(
+  () => accounts.accounts,
+  updateLimits,
+  { deep: true, immediate: true }
+)
+
 onMounted(async () => {
   try {
     if (!auth.user) {
@@ -324,6 +352,8 @@ onUnmounted(() => {
           autogrow
           style="font-size: large"
           input-style="min-height: 10rem; max-height: 10rem; overflow-y: auto;"
+          counter
+          :maxlength="maxCharCount"
         >
           <template v-slot:prepend>
             <q-icon name="fa-solid fa-message" />
@@ -375,9 +405,26 @@ onUnmounted(() => {
           label="Drop image files here"
           @update:model-value="onFileChange"
           clearable
+          bottom-slots
         >
           <template v-slot:prepend>
             <q-icon name="fa-solid fa-upload" />
+          </template>
+          <template v-slot:hint>
+            <q-btn label="limits" icon="fa-solid fa-circle-exclamation" flat @click="showImageLimits = true" />
+            <q-dialog v-model="showImageLimits">
+              <q-card>
+                <h4>Image Upload Limits</h4>
+                <ul>
+                  <li>Lemmy: 1 Image(With a link, not an upload. Found under lemmy options)</li>
+                  <li>Mastodon, Bluesky: 4 Images</li>
+                  <li>Pixelfed: 20 Images</li>
+                </ul>
+                <div>Images are uploaded in the order you pick</div>
+                <div>Images are also compressed before being uploaded to fit platform limits</div>
+                <q-btn icon="fa-solid fa-xmark" flat round class="absolute-top-right q-ma-xs" @click="showImageLimits = false" />
+              </q-card>
+            </q-dialog>
           </template>
         </q-file>
         <q-file
@@ -484,10 +531,8 @@ onUnmounted(() => {
 <!--        </div>-->
 
         <q-card-section style="display: flex; align-items: center; margin: 0;">
-          <q-icon name="fa-solid fa-crown" size="lg" class="q-mr-md" color="accent" />
           <h4>NSFW</h4>
-          <q-toggle v-model="nsfw" class="q-mr-none q-ml-auto" disable />
-          <q-tooltip>Please upgrade to pro to use nsfw toggle</q-tooltip>
+          <q-toggle v-model="nsfw" class="q-mr-none q-ml-auto" />
         </q-card-section>
         <q-btn
           label="Post"

@@ -1,16 +1,83 @@
+<script setup lang="ts">
+import { ref } from 'vue';
+import { useQuasar } from 'quasar';
+import { useRouter } from 'vue-router';
+import { useAuthStore } from 'stores';
+import { useErrorHandling } from 'src/composables/useErrorHandling';
+
+const $q = useQuasar();
+const auth = useAuthStore();
+const router = useRouter();
+const { handleError } = useErrorHandling();
+
+const newEmail = ref('');
+const newPassword = ref('');
+const confirmDelete = ref(false);
+
+const updateEmail = async () => {
+  if (!newEmail.value) return;
+  $q.notify({
+    message: 'Please check your inbox for a confirmation link',
+    type: 'info',
+    position: 'top-right'
+  });
+
+  try{
+    await auth.updateUserEmail(newEmail.value);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+const updatePassword = () => {
+  if (!newPassword.value) return;
+
+  // const { error } = await auth.updateUser({ password: newPassword.value });
+  // if (error) {
+  //   alert('Error updating password: ' + error.message);
+  // } else {
+  //   alert('Password updated successfully.');
+  // }
+};
+
+const signOut = async () => {
+  await auth.signOut();
+  await router.push('/');
+};
+
+const deleteAccount = () => {
+  if (!auth.user) return;
+
+  // const { error } = await functions.invoke('delete-user', {
+  //   body: { user_id: auth.user?.id },
+  // });
+
+  // if (error) {
+  //   alert('Error deleting account: ' + error.message);
+  // } else {
+  //   await signOut();
+  // }
+};
+
+const emailRule = (val: string) =>
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val) || 'Please enter a valid email';
+</script>
+
 <template>
   <q-card v-if="auth.user" class="wrapper">
-    <h4><strong>Email:</strong> {{ auth.user.email }}</h4>
+    <q-form @submit.prevent="updateEmail">
+      <h4><strong>Email:</strong> {{ auth.user.email }}</h4>
 
-    <!-- Update Email -->
-    <div class="section">
-      <q-input v-model="newEmail" label="New Email" standout class="item">
-        <template v-slot:prepend>
-          <q-icon name="fa-solid fa-envelope" />
-        </template>
-      </q-input>
-      <q-btn label="Update Email" @click="updateEmail" color="primary" class=" item q-ml-lg" />
-    </div>
+      <!-- Update Email -->
+      <div>
+        <q-input v-model="newEmail" label="New Email" standout :rules="[emailRule]">
+          <template v-slot:prepend>
+            <q-icon name="fa-solid fa-envelope" />
+          </template>
+        </q-input>
+        <q-btn label="Update Email" @click="updateEmail" color="primary" class="q-ma-none" />
+      </div>
+    </q-form>
 
 
     <h4><strong>Password</strong></h4>
@@ -57,60 +124,6 @@
     <q-spinner />
   </div>
 </template>
-
-<script setup lang="ts">
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { useAuthStore } from 'stores';
-
-const auth = useAuthStore();
-const router = useRouter();
-
-const newEmail = ref('');
-const newPassword = ref('');
-const confirmDelete = ref(false);
-
-const updateEmail = () => {
-  if (!newEmail.value) return;
-
-  // const { error } = await auth.updateUser({ email: newEmail.value });
-  // if (error) {
-  //   alert('Error updating email: ' + error.message);
-  // } else {
-  //   alert('Check your email to confirm the change.');
-  // }
-};
-
-const updatePassword = () => {
-  if (!newPassword.value) return;
-
-  // const { error } = await auth.updateUser({ password: newPassword.value });
-  // if (error) {
-  //   alert('Error updating password: ' + error.message);
-  // } else {
-  //   alert('Password updated successfully.');
-  // }
-};
-
-const signOut = async () => {
-  await auth.signOut();
-  await router.push('/');
-};
-
-const deleteAccount = () => {
-  if (!auth.user) return;
-
-  // const { error } = await functions.invoke('delete-user', {
-  //   body: { user_id: auth.user?.id },
-  // });
-
-  // if (error) {
-  //   alert('Error deleting account: ' + error.message);
-  // } else {
-  //   await signOut();
-  // }
-};
-</script>
 
 <style scoped>
 .wrapper {

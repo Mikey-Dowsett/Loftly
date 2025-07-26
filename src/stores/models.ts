@@ -49,6 +49,17 @@ export type AccountPost = {
   created_at: string,
 }
 
+export type SubscriptionModel = {
+  id: number,
+  user_id: string,
+  plan_name: string,
+  stripe_customer_id: string,
+  subscription_status: string,
+  subscription_price_id: string,
+  subscription_ends_at: string,
+  email: string,
+}
+
 export enum Platform {
   mastodon = 'mastodon',
   bluesky = 'bluesky',
