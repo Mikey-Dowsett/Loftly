@@ -34,7 +34,8 @@ h1, h2, h3, h4, h5, h6, p {
 
 .q-input .q-field__control,
 .q-textarea .q-field__control,
-.q-file .q-field__control {
+.q-file .q-field__control,
+.q-select .q-field__control {
   border-radius: 1rem !important;
 }
 
@@ -75,6 +76,9 @@ h1, h2, h3, h4, h5, h6, p {
   transition: background-color 0.3s ease;
   color: var(--q-accent);
 }
+.q-tab-panel {
+  background-color: var(--q-background);
+}
 
 .q-linear-progress {
   position: fixed;
@@ -100,7 +104,6 @@ h1, h2, h3, h4, h5, h6, p {
 
 .q-separator {
   background-color: var(--q-text);
-  height: 0.25rem;
   margin: 1rem;
   border-radius: 1rem;
 }
@@ -133,11 +136,11 @@ h1, h2, h3, h4, h5, h6, p {
   font-size: 1rem;
   padding: 12px;
   border-radius: 1rem;
+  transition: all 0.2s ease;
 }
 
 .submit:hover {
-  background-color: #3ea76d;
-  box-shadow: 0 0 0.5rem rgba(62, 167, 109, 0.5);
+  transform: scale(1.05);
   transition: all 0.2s ease;
 }
 

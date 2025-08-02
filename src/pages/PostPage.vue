@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { watch, ref, onMounted, onUnmounted } from 'vue';
+import { watch, ref, onMounted, onUnmounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { QExpansionItem, useQuasar } from 'quasar';
 import axios from 'axios';
-import { useAuthStore, useStorageStore, useAccountsStore } from 'stores';
+import { useAuthStore, useStorageStore, useAccountsStore,
+  useUsageStore, usePlansStore} from 'stores';
 import { useErrorHandling } from 'src/composables/useErrorHandling';
 
 import ConnectAccountsComponent from 'components/Account Components/ConnectAccountsComponent.vue';
@@ -11,7 +12,9 @@ import LemmyCommunitiesSearchComponent from 'components/LemmyCommunitiesSearchCo
 
 const auth = useAuthStore();
 const accounts = useAccountsStore();
+const plan = usePlansStore();
 const storage = useStorageStore();
+const usage = useUsageStore();
 const $q = useQuasar();
 const $router = useRouter();
 
@@ -30,12 +33,21 @@ const date = ref('');
 const nsfw = ref(false);
 
 const maxCharCount = ref(300);
+const usageLimit = computed(() => plan.plan?.post_limit || 0);
+const currentUsage = computed(() => usage.usage?.post_count || 0);
+const hasReachedLimit = computed(() => currentUsage.value >= usageLimit.value);
 
 const loading = ref(false);
 const loadingProgress = ref(0);
 const loadingStep = ref('');
 
 const showImageLimits = ref(false);
+
+const getUsageDisplay = () => {
+  const used = usage.usage?.post_count || 0;
+  const limit = plan.plan?.post_limit || 0;
+  return `Posts left: ${limit - used}`;
+};
 
 const onSubmit = async () => {
   loadingProgress.value = 0;
@@ -51,12 +63,15 @@ const onSubmit = async () => {
       throw Error('You must be logged in to create posts');
     }
 
+    // Add usage limit check at the start
+    if (hasReachedLimit.value) {
+      throw Error('Post limit reached. Please upgrade your plan for more posts.');
+    }
+
     console.log(accounts.enabledAccounts.length);
     if (!accounts || accounts.enabledAccounts.length === 0) {
       throw new Error('Please select at least one account to post to');
     }
-
-    console.log(accounts.accounts);
 
     //Step 2: Validate post has some content
     const validationErrors = validatePost(message.value, rawImages.value, video.value);
@@ -131,6 +146,7 @@ const onSubmit = async () => {
     );
 
     console.log(response.data);
+    await usage.updateUsage(1);
 
     // Step 6: Post success
     loadingStep.value = 'Post created successfully!';
@@ -165,6 +181,7 @@ const onSubmit = async () => {
     // Handle the error using our centralized system
     handleError(error, 'Post Creation');
   } finally {
+
     loadingProgress.value = 0;
     loadingStep.value = '';
     loading.value = false;
@@ -309,6 +326,12 @@ watch(
   { deep: true, immediate: true }
 )
 
+watch(media_tab, (val) => {
+  if (val === 'videos' && !plan.plan?.video_access) {
+    media_tab.value = 'images';
+  }
+});
+
 onMounted(async () => {
   try {
     if (!auth.user) {
@@ -338,6 +361,7 @@ onUnmounted(() => {
         <div style="display: flex; align-items: center">
           <q-icon name="fa-solid fa-pencil" size="sm" class="q-mr-md" />
           <h4>Message</h4>
+          <h4 class="q-mr-none q-ml-auto">{{ getUsageDisplay() }}</h4>
         </div>
         <q-input label="Title" v-model="title" outlined hint="Used for Lemmy">
           <template v-slot:prepend>
@@ -361,6 +385,7 @@ onUnmounted(() => {
         </q-input>
 
         <q-input
+          v-if="plan.plan?.name !== 'free'"
           label="Hashtags"
           v-model="tags"
           outlined
@@ -370,13 +395,14 @@ onUnmounted(() => {
           hint="Used for Bluesky, Mastodon"
           style="font-size: large"
           input-style="min-height: 5rem; max-height: 5rem; overflow-y: auto;"
+          hide-bottom-space
         >
           <template v-slot:prepend>
             <q-icon name="fa-solid fa-hashtag" />
           </template>
-          <!--          <template v-slot:counter>-->
-          <!--            <q-btn label="Generate with AI" class="submit" color="positive" size="sm" />-->
-          <!--          </template>-->
+          <template v-slot:counter>
+            <q-btn label="Generate with AI" class="submit" color="positive" size="sm" />
+          </template>
         </q-input>
 
         <q-separator />
@@ -389,91 +415,96 @@ onUnmounted(() => {
         </div>
         <q-tabs v-model="media_tab" indicator-color="transparent">
           <q-tab name="images" icon="fa-solid fa-image" label="Images" />
-          <q-tab name="videos" icon="fa-solid fa-film" label="Videos" disable>
-            <q-tooltip>Please upgrade to pro to upload videos</q-tooltip>
+          <q-tab name="videos" icon="fa-solid fa-film" label="Videos"
+                 :disable="!plan.plan?.video_access">
+            <q-tooltip v-if="!plan.plan?.video_access">Please upgrade to pro to upload videos</q-tooltip>
           </q-tab>
         </q-tabs>
-        <q-file
-          standout
-          v-if="media_tab === 'images'"
-          v-model="rawImages"
-          multiple
-          append
-          counter
-          accept="image/*"
-          ref="imageFileInput"
-          label="Drop image files here"
-          @update:model-value="onFileChange"
-          clearable
-          bottom-slots
-        >
-          <template v-slot:prepend>
-            <q-icon name="fa-solid fa-upload" />
-          </template>
-          <template v-slot:hint>
-            <q-btn label="limits" icon="fa-solid fa-circle-exclamation" flat @click="showImageLimits = true" />
-            <q-dialog v-model="showImageLimits">
-              <q-card>
-                <h4>Image Upload Limits</h4>
-                <ul>
-                  <li>Lemmy: 1 Image(With a link, not an upload. Found under lemmy options)</li>
-                  <li>Mastodon, Bluesky: 4 Images</li>
-                  <li>Pixelfed: 20 Images</li>
-                </ul>
-                <div>Images are uploaded in the order you pick</div>
-                <div>Images are also compressed before being uploaded to fit platform limits</div>
-                <q-btn icon="fa-solid fa-xmark" flat round class="absolute-top-right q-ma-xs" @click="showImageLimits = false" />
-              </q-card>
-            </q-dialog>
-          </template>
-        </q-file>
-        <q-file
-          standout
-          v-else
-          v-model="video"
-          counter
-          accept="video/*"
-          label="Drop video file here"
-        >
-          <template v-slot:prepend>
-            <q-icon name="fa-solid fa-upload" />
-          </template>
-        </q-file>
-
-        <div v-if="media_tab === 'images'" class="image-gallery">
-          <q-img
-            v-for="(image, index) in images"
-            :key="index"
-            :src="image.url"
-            class="preview_image"
-          >
-            <div class="image-button-group">
-              <q-btn
-                icon="fa-solid fa-xmark"
-                @click="removeFile(index)"
-                class="image-remove"
-                round
-                color="negative"
-              />
-              <q-btn
-                v-if="index !== 0"
-                icon="fa-solid fa-caret-left"
-                @click="shiftFiles(index, -1)"
-                class="image-left"
-                round
-                color="info"
-              />
-              <q-btn
-                v-if="index !== images.length - 1"
-                icon="fa-solid fa-caret-right"
-                @click="shiftFiles(index, 1)"
-                class="image-right"
-                round
-                color="info"
-              />
+        <q-tab-panels v-model="media_tab" animated>
+          <q-tab-panel name="images">
+            <q-file
+              standout
+              v-model="rawImages"
+              multiple
+              append
+              counter
+              :max-files="plan.plan?.image_limit"
+              accept="image/*"
+              ref="imageFileInput"
+              label="Drop image files here"
+              @update:model-value="onFileChange"
+              clearable
+              bottom-slots
+            >
+              <template v-slot:prepend>
+                <q-icon name="fa-solid fa-upload" />
+              </template>
+              <template v-slot:hint>
+                <q-btn label="limits" icon="fa-solid fa-circle-exclamation" flat @click="showImageLimits = true" />
+                <q-dialog v-model="showImageLimits">
+                  <q-card>
+                    <h4>Image Upload Limits</h4>
+                    <ul>
+                      <li>Lemmy: 1 Image(With a link, not an upload. Found under lemmy options)</li>
+                      <li>Mastodon, Bluesky: 4 Images</li>
+                      <li>Pixelfed: 20 Images</li>
+                    </ul>
+                    <div>Images are uploaded in the order you pick</div>
+                    <div>Images are also compressed before being uploaded to fit platform limits</div>
+                    <q-btn icon="fa-solid fa-xmark" flat round class="absolute-top-right q-ma-xs" @click="showImageLimits = false" />
+                  </q-card>
+                </q-dialog>
+              </template>
+            </q-file>
+            <div class="image-gallery">
+              <q-img
+                v-for="(image, index) in images"
+                :key="index"
+                :src="image.url"
+                class="preview_image"
+              >
+                <div class="image-button-group">
+                  <q-btn
+                    icon="fa-solid fa-xmark"
+                    @click="removeFile(index)"
+                    class="image-remove"
+                    round
+                    color="negative"
+                  />
+                  <q-btn
+                    v-if="index !== 0"
+                    icon="fa-solid fa-caret-left"
+                    @click="shiftFiles(index, -1)"
+                    class="image-left"
+                    round
+                    color="info"
+                  />
+                  <q-btn
+                    v-if="index !== images.length - 1"
+                    icon="fa-solid fa-caret-right"
+                    @click="shiftFiles(index, 1)"
+                    class="image-right"
+                    round
+                    color="info"
+                  />
+                </div>
+              </q-img>
             </div>
-          </q-img>
-        </div>
+          </q-tab-panel>
+          <q-tab-panel name="videos" v-if="plan.plan?.video_access">
+            <q-file
+              standout
+              v-model="video"
+              counter
+              accept="video/*"
+              label="Drop video file here"
+            >
+              <template v-slot:prepend>
+                <q-icon name="fa-solid fa-upload" />
+              </template>
+            </q-file>
+          </q-tab-panel>
+        </q-tab-panels>
 
         <q-separator />
 
@@ -539,7 +570,7 @@ onUnmounted(() => {
           type="submit"
           color="positive"
           class="submit"
-          :disable="loading"
+          :disable="loading || hasReachedLimit"
           :loading="loading"
         />
       </q-card>

@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { supabase } from '../lib/supabase'
 import { type SubscriptionModel } from './models';
-import { useAuthStore } from './auth'
+import { useAuthStore, usePlansStore } from 'stores'
 
 export const useSubscriptionStore =  defineStore('subscription', {
   state: () => ({
@@ -65,6 +65,9 @@ export const useSubscriptionStore =  defineStore('subscription', {
       if (!this.subscription) {
         await this.createSubscription();
       }
+
+      const plansStore = usePlansStore();
+      await plansStore.init();
     }
   }
 });

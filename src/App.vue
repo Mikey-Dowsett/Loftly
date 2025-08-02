@@ -12,6 +12,7 @@
   --q-secondary-rgb: 161, 214, 226;
   --q-accent: #c44569;
   --q-background: #F5F5F5;
+  --q-background-accent: #E5E5E5;
   --q-text: #1B1B1B;
   --q-positive: #51905A;
   --q-negative: #e84855;
@@ -28,6 +29,7 @@
   --q-secondary-rgb: 161, 214, 226;
   --q-accent: #c44569;
   --q-background: #1B1B1B;
+  --q-background-accent: #2A2A2A;
   --q-text: #F5F5F5;
   --q-positive: #51905A;
   --q-negative: #e84855;

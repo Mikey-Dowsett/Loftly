@@ -49,15 +49,38 @@ export type AccountPost = {
   created_at: string,
 }
 
+export type Plans = {
+  id: number,
+  name: string,
+  price_monthly: number,
+  price_yearly: number,
+  account_limit: number,
+  post_limit: number,
+  ai_limit: number,
+  platform_access: string[],
+  history_days: number,
+  schedule_limit_days: number,
+  image_limit: number,
+  video_access: boolean,
+}
+
 export type SubscriptionModel = {
   id: number,
   user_id: string,
-  plan_name: string,
+  plan_name: PlanTiers,
   stripe_customer_id: string,
   subscription_status: string,
   subscription_price_id: string,
   subscription_ends_at: string,
   email: string,
+}
+
+export type UsageModel = {
+  user_id: string,
+  post_count: number,
+  post_last_reset: string,
+  ai_usage: number,
+  ai_last_reset: string,
 }
 
 export enum Platform {
@@ -66,3 +89,17 @@ export enum Platform {
   pixelfed = 'pixelfed',
   lemmy = 'lemmy',
 }
+
+export enum PlanTiers {
+  free = 0,
+  indie = 1,
+  creator = 2,
+  business = 3,
+}
+
+export const PlanNameToEnum: Record<string, PlanTiers> = {
+  free: PlanTiers.free,
+  indie: PlanTiers.indie,
+  creator: PlanTiers.creator,
+  business: PlanTiers.business,
+};

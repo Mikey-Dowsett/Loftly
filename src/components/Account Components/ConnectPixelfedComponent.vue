@@ -1,41 +1,62 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue';
 import { type Instances } from 'src/stores/models'
 import { eventBus } from 'src/tools/event-bus'
-import { usePixelfedStore } from 'stores'
+import { useAccountsStore, usePixelfedStore, usePlansStore } from 'stores';
+import { useErrorHandling } from 'src/composables/useErrorHandling';
 
+const plan = usePlansStore();
+const accounts = useAccountsStore();
 const pixelfedStore = usePixelfedStore();
-const modelValue = defineModel<boolean | null>({ default: false });
+const { handleError } = useErrorHandling();
+
 const instances = pixelfedStore.getInstances;
-const instance = ref('')
+const instance = ref('');
+const modelValue = defineModel<boolean | null>({ default: false });
 
 async function connectAccount() {
-  if (!instances.find((x: Instances) => x.instance === instance.value)) {
-    await pixelfedStore.registerInstance(instance.value);
-    await new Promise(resolve => setTimeout(resolve, 2000));
+  try {
+    if (!instances.find((x: Instances) => x.instance === instance.value)) {
+      await pixelfedStore.registerInstance(instance.value);
+      await new Promise(resolve => setTimeout(resolve, 2000));
+    }
+
+    const scope = 'read write';
+    const selectedInstance = instances.find((x: Instances) => x.instance === instance.value);
+    const redirectUri = 'http://localhost:9000/pixelfed/callback';
+
+    if (!selectedInstance) throw new Error('Instance not found');
+
+    const authUrl = `https://${selectedInstance.instance}/oauth/authorize` +
+      `?client_id=${selectedInstance.client_key}` +
+      `&redirect_uri=${encodeURIComponent(redirectUri)}` +
+      `&response_type=code` +
+      `&scope=${encodeURIComponent(scope)}` +
+      `&state=${instance.value}`;
+
+    console.log("Redirecting to Pixelfed:", authUrl);
+
+    window.location.href = authUrl;
+  } catch (e) {
+    handleError(e);
   }
-
-  const scope = 'read write';
-  const selectedInstance = instances.find((x: Instances) => x.instance === instance.value);
-  const redirectUri = 'http://localhost:9000/pixelfed/callback';
-
-  if (!selectedInstance) throw new Error('Instance not found');
-
-  const authUrl = `https://${selectedInstance.instance}/oauth/authorize` +
-    `?client_id=${selectedInstance.client_key}` +
-    `&redirect_uri=${encodeURIComponent(redirectUri)}` +
-    `&response_type=code` +
-    `&scope=${encodeURIComponent(scope)}` +
-    `&state=${instance.value}`;
-
-  console.log("Redirecting to Pixelfed:", authUrl);
-
-  window.location.href = authUrl;
 }
 
 function closeWindow() {
   eventBus.emit('close-pixelfed-login');
 }
+
+onMounted(() => {
+  if (!plan.plan?.account_limit) {
+    closeWindow();
+    return;
+  }
+  if (accounts.accounts?.length >= plan.plan?.account_limit) {
+    handleError('You have reached your account limit.');
+    closeWindow();
+    return;
+  }
+});
 </script>
 
 <template>

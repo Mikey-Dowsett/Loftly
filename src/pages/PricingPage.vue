@@ -1,33 +1,54 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { loadStripe } from '@stripe/stripe-js';
-import { useAuthStore } from 'stores';
+import { useAuthStore, useSubscriptionStore } from 'stores';
+import { useErrorHandling} from 'src/composables/useErrorHandling';
+import axios from 'axios';
+import { PlanNameToEnum, PlanTiers } from 'stores/models';
 
 const auth = useAuthStore();
+const subscription = useSubscriptionStore();
+const { handleError } = useErrorHandling();
 const stripePromise = loadStripe('pk_test_51Ro3YNDnWFQHUjwgKXSJHerEPWb44TFFLKS0op7qYmW5WruNyRIlRp9VSnP4zncfI0OmbC573KO8qVHRmthruuNT00uXDkxWgo');
 
 const redirectToCheckout = async (plan: string, price_id: string) => {
   const stripe = await stripePromise;
 
-  const res = await fetch('http://localhost:8000/create-checkout-session', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ plan: plan, price_id: price_id, user_id: auth.user?.id }),
-  });
+  if(PlanNameToEnum[subscription.subscription?.plan_name ?? ''] === PlanTiers.free) {
+    const res = await fetch('http://localhost:8000/create-checkout-session', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ plan: plan, price_id: price_id, user_id: auth.user?.id }),
+    });
 
-  const session = await res.json();
-  console.log(session);
+    const session = await res.json();
+    console.log(session);
 
-  const result = await stripe?.redirectToCheckout({
-    sessionId: session.id,
-  });
+    const result = await stripe?.redirectToCheckout({
+      sessionId: session.id,
+    });
 
-  if (result?.error) {
-    console.error(result.error.message);
+    if (result?.error) {
+      console.error(result.error.message);
+    }
+  } else {
+    try {
+      const { data } = await axios.post('http://localhost:8000/create-customer-portal-session', {
+        customer_id: subscription.subscription?.stripe_customer_id,
+      });
+
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('Failed to get portal URL');
+      }
+    } catch (err) {
+      handleError(err);
+    }
   }
-};
+}
 
 const navigateToPost = () => {
   window.location.href = '/post';
@@ -43,9 +64,9 @@ const plans = [
     price: 0,
     description: 'Perfect for individuals testing the waters',
     features: [
-      'All Open-Source platforms',
       'Up to 3 connected accounts',
       '5 posts per week',
+      'All Open-Source platforms',
       'Create text & image posts',
       'Basic post history (30 days)',
     ],
@@ -59,31 +80,29 @@ const plans = [
     description: 'Great for content creators and small businesses',
     features: [
       'Up to 10 connected accounts',
-      '100 posts per month',
+      '25 posts per week',
       'Video uploads (100MB)',
       'Schedule posts (30 days)',
-      'Basic analytics dashboard',
-      'AI hashtag generation',
-      'Post templates (5)',
-      'Email support',
-      'Extended history (6 months)',
+      'Basic Analytics Dashboard',
+      'Limited AI Use',
+      'Extended history (6 Months)',
     ],
   },
   {
     name: 'Creator Tier',
     price_id: 'price_1Ro4WwDnWFQHUjwgRP6kgFea',
-    price_id_yearly: 'null',
+    price_id_yearly: 'price_1RqyEGDnWFQHUjwgxJIFjFm0',
     price: 25,
     description: 'Advanced features for professional creators',
     features: [
       'Up to 25 connected accounts',
-      '500 posts per month',
-      'LinkedIn integration',
-      'Advanced analytics',
-      'AI message generation',
-      'Custom messages per platform',
-      'Priority support',
+      '100 posts per week',
+      'LinkedIn Integration',
+      'Schedule Posts (6 Months)',
+      'Advanced Analytics Dashboard',
+      'Extended AI Use',
       'Extended history (1 year)',
+      'Custom messages per platform',
     ],
   },
 ];
@@ -93,7 +112,7 @@ const plans = [
   <q-card style="text-align: center; width: 50%; margin: 3rem auto">
     <h3>Choose Your Plan</h3>
     <p class="text-caption">Start with our free tier and scale up as your needs grow</p>
-    <q-toggle v-model="annual" label="Annual billing (save 20%)" color="primary" left-label />
+    <q-toggle v-model="annual" label="Annual Billing" color="primary" left-label />
   </q-card>
 
   <!-- Pricing Cards -->
@@ -110,7 +129,7 @@ const plans = [
           <q-btn
             v-if="auth.user"
             :color="plan.popular ? 'primary' : 'grey'"
-            :label="plan.price === 0 ? 'Get Started' : 'Subscribe Now'"
+            :label="plan.price === 0 ? 'Get Started' : plan.price === 10 ? 'Subscribe Now' : 'Coming Soon'"
             class="full-width"
             @click="
               plan.price === 0

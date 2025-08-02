@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { eventBus } from 'src/tools/event-bus';
-import { useLemmyStore } from 'stores'
+import { useAccountsStore, useLemmyStore, usePlansStore } from 'stores';
 import { useErrorHandling } from 'src/composables/useErrorHandling';
 
+const plan = usePlansStore();
+const accounts = useAccountsStore();
 const lemmyStore = useLemmyStore();
 const { handleError } = useErrorHandling();
 
@@ -27,6 +29,18 @@ async function connectAccount() {
 function closeWindow() {
   eventBus.emit('close-lemmy-login');
 }
+
+onMounted(() => {
+  if (!plan.plan?.account_limit) {
+    closeWindow();
+    return;
+  }
+  if (accounts.accounts?.length >= plan.plan?.account_limit) {
+    handleError('You have reached your account limit.');
+    closeWindow();
+    return;
+  }
+});
 </script>
 
 <template>

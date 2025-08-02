@@ -1,15 +1,18 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue';
 import { eventBus } from 'src/tools/event-bus';
-import { useMastodonStore } from 'stores'
+import { useAccountsStore, useMastodonStore, usePlansStore } from 'stores';
 import type { Instances } from 'stores/models';
 import { useErrorHandling } from 'src/composables/useErrorHandling';
 
-const { handleError } = useErrorHandling();
+const plan = usePlansStore();
+const accounts = useAccountsStore();
 const mastodon = useMastodonStore();
-const modelValue = defineModel<boolean | null>({ default: false });
+const { handleError } = useErrorHandling();
+
 const instances = mastodon.getInstances;
-const instance = ref('')
+const instance = ref('');
+const modelValue = defineModel<boolean | null>({ default: false });
 
 async function connectAccount() {
   try {
@@ -42,6 +45,18 @@ async function connectAccount() {
 function closeWindow() {
   eventBus.emit('close-mastodon-login');
 }
+
+onMounted(() => {
+  if (!plan.plan?.account_limit) {
+    closeWindow();
+    return;
+  }
+  if (accounts.accounts?.length >= plan.plan?.account_limit) {
+    handleError('You have reached your account limit.');
+    closeWindow();
+    return;
+  }
+});
 </script>
 
 <template>

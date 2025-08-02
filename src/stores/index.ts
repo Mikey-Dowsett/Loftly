@@ -2,19 +2,24 @@ import { defineStore } from '#q-app/wrappers'
 import { createPinia } from 'pinia'
 import { useAuthStore } from './auth'
 import { useSubscriptionStore } from './subscription'
+import { usePlansStore } from './plans'
+import { useUsageStore } from './usage'
 import { useStorageStore } from './storage'
 import { useAccountsStore } from './accounts'
 import { useHistoryStore } from './history'
-import { useMastodonStore } from './mastodon'
-import { useBlueskyStore } from './bluesky';
-import { useLemmyStore } from './lemmy'
-import { usePixelfedStore} from './pixelfed';
+
+import { useMastodonStore } from './Platform Stores/mastodon'
+import { useBlueskyStore } from './Platform Stores/bluesky';
+import { useLemmyStore } from './Platform Stores/lemmy'
+import { usePixelfedStore} from './Platform Stores/pixelfed';
 
 export async function initializeStores() {
   const authStore = useAuthStore();
   const subscriptionStore = useSubscriptionStore();
+  const usageStore = useUsageStore();
   const connectedAccountsStore = useAccountsStore();
   const historyStore = useHistoryStore();
+
   const mastodonStore = useMastodonStore();
   const pixelfedStore = usePixelfedStore();
 
@@ -27,6 +32,7 @@ export async function initializeStores() {
     await Promise.all([
       connectedAccountsStore.init(),
       subscriptionStore.init(),
+      usageStore.init(),
       historyStore.init(),
       mastodonStore.init(),
       pixelfedStore.init(),
@@ -37,9 +43,12 @@ export async function initializeStores() {
 export {
   useAuthStore,
   useSubscriptionStore,
+  usePlansStore,
+  useUsageStore,
   useStorageStore,
   useAccountsStore,
   useHistoryStore,
+
   useMastodonStore,
   useBlueskyStore,
   useLemmyStore,

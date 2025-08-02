@@ -22,12 +22,16 @@ const routes: RouteRecordRaw[] = [
         component: () => import('pages/PostHistoryPage.vue'),
       },
       {
-        path: 'pricing',
+        path: '/pricing',
         component: () => import('pages/PricingPage.vue'),
       },
       {
+        path: '/feedback',
+        component: () => import('pages/FeedbackPage.vue'),
+      },
+      {
         path: '/settings',
-        component: () => import('pages/SettingsPage.vue'),
+        component: () => import('pages/Settings/SettingsPage.vue'),
         children: [
           {
             path: '',
@@ -41,6 +45,10 @@ const routes: RouteRecordRaw[] = [
             path: '/settings/connections',
             component: () => import('components/Settings/ConnectionSettings.vue'),
           },
+          {
+            path: '/settings/subscription',
+            component: () => import('components/Settings/SubscriptionSettings.vue'),
+          },
         ],
       },
     ]
@@ -50,7 +58,7 @@ const routes: RouteRecordRaw[] = [
     path: '/mastodon/callback',
     component: () => import('layouts/MinimalLayout.vue'),
     children: [
-      { path: '', component: () => import('pages/MastodonCallback.vue') },
+      { path: '', component: () => import('pages/Callbacks/MastodonCallback.vue') },
     ],
   },
 
@@ -58,7 +66,7 @@ const routes: RouteRecordRaw[] = [
     path: '/pixelfed/callback',
     component: () => import('layouts/MinimalLayout.vue'),
     children: [
-      { path: '', component: () => import('pages/PixelfedCallback.vue') },
+      { path: '', component: () => import('pages/Callbacks/PixelfedCallback.vue') },
     ],
   },
 

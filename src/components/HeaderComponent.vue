@@ -76,6 +76,14 @@ eventBus.on('show-login', () => {
               <div class="text-weight-bold">Settings</div>
             </q-item-section>
           </q-item>
+          <q-item v-if="auth.user" clickable to="/feedback" tag="router-link" active-class="link-active">
+            <q-item-section side>
+              <q-icon name="fa-solid fa-bug" size="sm" color="primary" />
+            </q-item-section>
+            <q-item-section>
+              <div class="text-weight-bold">Feedback</div>
+            </q-item-section>
+          </q-item>
 
           <q-item clickable @click="toggleDark">
             <q-item-section side>
@@ -129,6 +137,11 @@ eventBus.on('show-login', () => {
 }
 .logo h4 {
   font-weight: bold;
+}
+.usage-display {
+  display: flex;
+  align-items: center;
+  margin-right: 0.5rem;
 }
 .account {
   display: flex;

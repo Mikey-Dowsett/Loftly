@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
-import { supabase } from '../lib/supabase'
-import { useAuthStore, useAccountsStore } from './'
+import { supabase } from 'src/lib/supabase'
+import { useAuthStore, useAccountsStore } from 'stores'
 import { LemmyHttp, type ListCommunitiesResponse } from 'lemmy-js-client';
 import { eventBus } from 'src/tools/event-bus';
 

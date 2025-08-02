@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia'
 import { AtpAgent } from '@atproto/api'
-import { supabase } from '../lib/supabase'
-import { eventBus } from '../tools/event-bus'
-import { useAuthStore, useAccountsStore } from './'
+import { supabase } from 'src/lib/supabase'
+import { eventBus } from 'src/tools/event-bus'
+import { useAuthStore, useAccountsStore } from 'stores'
 
 export const useBlueskyStore = defineStore('bluesky', {
   state: () => ({

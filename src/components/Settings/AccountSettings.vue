@@ -12,6 +12,7 @@ const { handleError } = useErrorHandling();
 
 const newEmail = ref('');
 const newPassword = ref('');
+const confirmPassword = ref('');
 const confirmDelete = ref(false);
 
 const updateEmail = async () => {
@@ -64,9 +65,13 @@ const emailRule = (val: string) =>
 </script>
 
 <template>
-  <q-card v-if="auth.user" class="wrapper">
+  <div v-if="auth.user">
+    <h4><q-icon name="fa-solid fa-circle-check" /> {{ auth.user.email }}</h4>
+
+    <q-separator />
+
     <q-form @submit.prevent="updateEmail">
-      <h4><strong>Email:</strong> {{ auth.user.email }}</h4>
+      <h5><strong>New Email</strong></h5>
 
       <!-- Update Email -->
       <div>
@@ -75,35 +80,44 @@ const emailRule = (val: string) =>
             <q-icon name="fa-solid fa-envelope" />
           </template>
         </q-input>
-        <q-btn label="Update Email" @click="updateEmail" color="primary" class="q-ma-none" />
+        <q-btn label="Update Email" @click="updateEmail" color="primary" class="submit" />
       </div>
     </q-form>
 
+    <q-separator />
 
-    <h4><strong>Password</strong></h4>
-    <!-- Update Password -->
-    <div class="section">
-      <q-input v-model="newPassword" label="New Password" type="password" standout class="item">
-        <template v-slot:prepend>
-          <q-icon name="fa-solid fa-key" />
-        </template>
-      </q-input>
-      <q-btn label="Update Password" @click="updatePassword" class="item q-ml-lg" color="primary" />
-    </div>
+    <q-form>
+      <h5><strong>New Password</strong></h5>
+      <!-- Update Password -->
+      <div>
+        <q-input v-model="newPassword" label="New Password" type="password" standout clearable>
+          <template v-slot:prepend>
+            <q-icon name="fa-solid fa-key" />
+          </template>
+        </q-input>
+        <q-input v-model="confirmPassword" label="Confirm Password" type="password" standout clearable>
+          <template v-slot:prepend>
+            <q-icon name="fa-solid fa-key" />
+          </template>
+        </q-input>
+        <q-btn label="Update Password" @click="updatePassword" class="submit" color="primary" />
+      </div>
+    </q-form>
 
-    <div class="actions">
-      <!-- Sign Out -->
-      <q-btn label="Sign Out" @click="signOut" color="negative" class="item" />
+    <q-separator />
 
-      <!-- Delete Account -->
-      <q-btn
-        label="Delete Account"
-        color="negative"
-        flat
-        @click="confirmDelete = true"
-        class="item"
-      />
-    </div>
+    <!-- Sign Out -->
+    <q-btn label="Sign Out" @click="signOut" color="negative" class="submit" flat />
+
+    <q-separator />
+
+    <!-- Delete Account -->
+    <q-btn
+      label="Delete Account"
+      color="negative"
+      @click="confirmDelete = true"
+      class="submit"
+    />
 
     <!-- Confirm Dialog -->
     <q-dialog v-model="confirmDelete">
@@ -118,7 +132,7 @@ const emailRule = (val: string) =>
         </q-card-actions>
       </q-card>
     </q-dialog>
-  </q-card>
+  </div>
 
   <div v-else>
     <q-spinner />
@@ -126,25 +140,6 @@ const emailRule = (val: string) =>
 </template>
 
 <style scoped>
-.wrapper {
-  width: 75%;
-  margin: 0 auto;
-}
-.section {
-  display: flex;
-  gap: 1rem;
-  margin: 1rem 0;
-}
-.actions {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  margin-top: 2rem;
-  gap: 1rem;
-}
-.item {
-  width: 40%;
-}
 p {
   margin-bottom: 8px;
 }

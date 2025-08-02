@@ -1,13 +1,13 @@
 import { defineStore } from 'pinia'
-import { supabase } from '../lib/supabase'
-import { type Instances } from './models'
-import { eventBus } from '../tools/event-bus'
-import { useAuthStore, useAccountsStore } from '.'
+import { supabase } from 'src/lib/supabase'
+import { type Instances } from '../models'
+import { eventBus } from 'src/tools/event-bus'
+import { useAuthStore, useAccountsStore } from 'stores'
 import { useErrorHandling } from 'src/composables/useErrorHandling';
 
 const { handleError } = useErrorHandling();
 
-export const useMastodonStore = defineStore('mastodon', {
+export const usePixelfedStore = defineStore('pixelfed', {
   state: () => ({
     instances: [] as Instances[],
     connecting: false,
@@ -25,7 +25,7 @@ export const useMastodonStore = defineStore('mastodon', {
 
       this.loading = true;
       const { data, error } = await supabase.from('instances')
-        .select().eq('platform', 'mastodon');
+        .select().eq('platform', 'pixelfed');
       this.instances = data || [];
       this.loading = false;
 
@@ -34,7 +34,7 @@ export const useMastodonStore = defineStore('mastodon', {
     },
 
     async registerInstance(instance: string) {
-      const redirectUri = 'http://localhost:9000/mastodon/callback';
+      const redirectUri = 'http://localhost:9000/pixelfed/callback';
 
       try {
         const response = await fetch(`https://${instance}/api/v1/apps`, {
@@ -54,18 +54,19 @@ export const useMastodonStore = defineStore('mastodon', {
           throw new Error(`Failed to register app: ${response.statusText}`);
         }
 
-        const instanceData = await response.json();
+        const data = await response.json();
 
+        console.log('Storing Instance', data);
         await supabase.from('instances').insert({
-          platform: 'mastodon',
+          platform: 'pixelfed',
           instance,
-          client_key: instanceData.client_id,
-          client_secret: instanceData.client_secret,
+          client_key: data.client_id,
+          client_secret: data.client_secret,
         });
 
         await new Promise(resolve => setTimeout(resolve, 2000));
 
-        await this.fetchInstances();
+        return await this.fetchInstances();
       } catch (error) {
         handleError(error);
       }
@@ -73,21 +74,20 @@ export const useMastodonStore = defineStore('mastodon', {
 
     async connectAccount(code: string, instanceUrl: string) {
       const auth = useAuthStore();
-      if (!auth.user) return 'Not logged in';
+      if (!auth.user) return;
 
       if (this.instances.length === 0) {
         await this.fetchInstances();
       }
 
       this.connecting = true;
-      const redirectUri = 'http://localhost:9000/mastodon/callback';
+      const redirectUri = 'http://localhost:9000/pixelfed/callback';
       const instance = this.instances.find((x: Instances) => x.instance === instanceUrl);
 
       if(!instance) return `Missing instance ${instance}`;
 
       try {
-        // Exchange auth code for access token
-        const tokenResponse = await fetch(`https://${instance.instance}/oauth/token`, {
+        const tokenResponse = await fetch(`https://${instanceUrl}/oauth/token`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           body: new URLSearchParams({
@@ -107,7 +107,6 @@ export const useMastodonStore = defineStore('mastodon', {
         const tokenData = await tokenResponse.json();
         const accessToken = tokenData.access_token;
 
-        // Fetch user's account info
         const accountResponse = await fetch(`https://${instance.instance}/api/v1/accounts/verify_credentials`, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -120,13 +119,12 @@ export const useMastodonStore = defineStore('mastodon', {
         }
 
         const account = await accountResponse.json();
-        const handle = `${account.username}@${new URL(`https://${instance.instance}`).hostname}`;
 
         await supabase.from('linked_accounts').insert({
           user_id: auth.user.id,
-          platform: 'mastodon',
+          platform: 'pixelfed',
           instance: instance.instance,
-          handle: handle,
+          handle: account.username,
           account_url: account.url,
           did: null,
           app_password: null,
@@ -152,9 +150,9 @@ export const useMastodonStore = defineStore('mastodon', {
 
     async init() {
       const auth = useAuthStore();
-      if(auth.user) {
+      if (auth.user) {
         await this.fetchInstances();
       }
     }
   }
-})
+});
