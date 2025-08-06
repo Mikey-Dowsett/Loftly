@@ -11,6 +11,7 @@ const router = useRouter();
 const { handleError } = useErrorHandling();
 
 const newEmail = ref('');
+const currentPassword = ref('');
 const newPassword = ref('');
 const confirmPassword = ref('');
 const confirmDelete = ref(false);
@@ -30,15 +31,26 @@ const updateEmail = async () => {
   }
 };
 
-const updatePassword = () => {
-  if (!newPassword.value) return;
+const updatePassword = async () => {
+  if (!currentPassword.value || !newPassword.value || !confirmPassword.value) return;
 
-  // const { error } = await auth.updateUser({ password: newPassword.value });
-  // if (error) {
-  //   alert('Error updating password: ' + error.message);
-  // } else {
-  //   alert('Password updated successfully.');
-  // }
+  if (newPassword.value !== confirmPassword.value) {
+    handleError('Passwords do not match');
+    return;
+  }
+
+  try {
+    await auth.updateUserPassword(newPassword.value);
+    console.log('Password updated successfully');
+    $q.notify({ type: 'positive', message: 'Password updated successfully', position: 'top-right' });
+
+    // Optionally reset the fields
+    currentPassword.value = '';
+    newPassword.value = '';
+    confirmPassword.value = '';
+  } catch (error) {
+    handleError(error);
+  }
 };
 
 const signOut = async () => {
@@ -86,10 +98,15 @@ const emailRule = (val: string) =>
 
     <q-separator />
 
-    <q-form>
+    <q-form @submit.prevent="updatePassword">
       <h5><strong>New Password</strong></h5>
       <!-- Update Password -->
       <div>
+        <q-input v-model="currentPassword" label="Current Password" type="password" standout clearable>
+          <template v-slot:prepend>
+            <q-icon name="fa-solid fa-key" />
+          </template>
+        </q-input>
         <q-input v-model="newPassword" label="New Password" type="password" standout clearable>
           <template v-slot:prepend>
             <q-icon name="fa-solid fa-key" />

@@ -31,6 +31,11 @@ export const useHistoryStore = defineStore('history', {
       this.sub_posts = subPostsData;
     },
 
+    clearHistory() {
+      this.posts = [];
+      this.sub_posts = [];
+    },
+
     async init() {
       const authStore = useAuthStore();
       if (authStore.user) {

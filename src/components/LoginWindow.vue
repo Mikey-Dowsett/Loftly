@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { useQuasar, QForm } from 'quasar';
 import { eventBus } from '../tools/event-bus';
 import { useAuthStore } from 'stores'
+import { supabase } from 'src/lib/supabase'
 
 const auth = useAuthStore()
 
@@ -10,9 +11,7 @@ const modelValue = defineModel<boolean | null>({default: false});
 const formRef = ref();
 const email = ref('');
 const password = ref('');
-const authMode = ref('signIn');
 const $q = useQuasar();
-
 
 const handleAuth = async () => {
   try {
@@ -33,6 +32,18 @@ const handleAuth = async () => {
       timeout: 2000,
     });
     console.error(error);
+  }
+};
+
+const sendRecoveryEmail = async () => {
+  const { error } = await supabase.auth.resetPasswordForEmail(email.value, {
+    redirectTo: 'http://localhost:9000/reset-password', // match your setup
+  });
+
+  if (error) {
+    $q.notify({ type: 'negative', message: error.message });
+  } else {
+    $q.notify({ type: 'info', message: 'Recovery email sent!', position: 'top-right' });
   }
 };
 
@@ -73,7 +84,7 @@ const securePasswordRule = (val: string) =>
         <q-input
           v-model="password" type="password"
           placeholder="Password" class="input" rounded outlined
-          :rules="authMode==='signIn' ? [passwordLengthRule, securePasswordRule] : []" autocomplete="current-password">
+          :rules="[passwordLengthRule, securePasswordRule]" autocomplete="current-password">
           <template v-slot:prepend>
             <q-icon name="lock" />
           </template>
@@ -84,6 +95,10 @@ const securePasswordRule = (val: string) =>
         <div>
           <q-btn flat no-caps class="btn"
             label="Don't have an account yet? Sign Up" href="/signup" />
+        </div>
+        <div>
+          <q-btn flat no-caps class="btn"
+            label="Forgot Password?" @click="sendRecoveryEmail" />
         </div>
       </q-form>
     </q-card>

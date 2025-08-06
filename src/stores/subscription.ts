@@ -54,6 +54,10 @@ export const useSubscriptionStore =  defineStore('subscription', {
       this.loading = false;
     },
 
+    clearSubscription() {
+      this.subscription = null;
+    },
+
     async init() {
       const auth = useAuthStore();
       if (!auth.user) return;

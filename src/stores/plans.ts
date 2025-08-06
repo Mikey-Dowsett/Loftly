@@ -32,6 +32,10 @@ export const usePlansStore = defineStore('plans', {
       this.loading = false;
     },
 
+    clearPlan() {
+      this.plan = null;
+    },
+
     async init() {
       const authStore = useAuthStore();
       if (authStore.user) {

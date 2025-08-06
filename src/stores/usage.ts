@@ -46,6 +46,10 @@ export const useUsageStore = defineStore('usage', {
       this.loading = false;
     },
 
+    clearUsage() {
+      this.usage = null;
+    },
+
     async init() {
       const auth = useAuthStore();
       if (!auth.user) return;

@@ -1,12 +1,14 @@
 import { defineStore } from 'pinia';
 import { supabase } from '../lib/supabase'
 import { type User, type Session } from '@supabase/supabase-js';
+import { useErrorHandling } from '../composables/useErrorHandling';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null as User | null,
     session: null as Session | null,
     loading: false,
+    updating: false,
   }),
 
   getters: {
@@ -106,23 +108,42 @@ export const useAuthStore = defineStore('auth', {
 
     setupAuthListener() {
       supabase.auth.onAuthStateChange(async (_event, session) => {
+        if (this.updating) return;
         this.user = session?.user || null;
 
         // Trigger other stores to update when auth state changes
+        const { useAccountsStore } = await import('./accounts');
+        const { useHistoryStore } = await import('./history');
+        const { usePlansStore } = await import('./plans');
+        const { useSubscriptionStore } = await import('./subscription');
+        const { useUsageStore } = await import('./usage');
+
+        const connectedAccountsStore = useAccountsStore();
+        const historyStore = useHistoryStore();
+        const plansStore = usePlansStore();
+        const subscriptionsStore = useSubscriptionStore();
+        const usageStore = useUsageStore();
+
         if (this.user) {
-          const { useAccountsStore } = await import('./accounts');
-          const connectedAccountsStore = useAccountsStore();
-          await connectedAccountsStore.fetchConnectedAccounts();
+          await Promise.allSettled([
+            connectedAccountsStore.init(),
+            historyStore.init(),
+            plansStore.init(),
+            subscriptionsStore.init(),
+            usageStore.init()
+          ]);
         } else {
-          const { useAccountsStore } = await import('./accounts');
-          const connectedAccountsStore = useAccountsStore();
           connectedAccountsStore.clearAccounts();
+          historyStore.clearHistory();
+          plansStore.clearPlan();
+          subscriptionsStore.clearSubscription();
+          usageStore.clearUsage();
         }
       });
     },
 
     async updateUserEmail(newEmail: string,) {
-      const { data, error } = await supabase.auth.updateUser(
+      const { error } = await supabase.auth.updateUser(
         { email: newEmail },
         {
           emailRedirectTo: 'http://localhost:9000/email-confirmed'
@@ -130,7 +151,26 @@ export const useAuthStore = defineStore('auth', {
       );
 
       if (error) throw error;
-      console.log(data);
+    },
+
+    async updateUserPassword(password: string) {
+      if(!this.user) return;
+      this.updating = true;
+      const { handleError } = useErrorHandling();
+
+      try {
+        console.log("Updating user password...");
+        const { error } = await supabase.auth.updateUser({
+          password: password,
+        });
+        console.log("User password updated!");
+
+        if (error) throw error;
+      } catch (error) {
+        handleError(error);
+      } finally {
+        this.updating = false;
+      }
     },
 
     async init() {
