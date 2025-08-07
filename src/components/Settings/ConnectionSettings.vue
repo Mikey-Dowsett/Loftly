@@ -90,7 +90,11 @@ onMounted( async () => {
   <div>
     <div style="display: flex">
       <h4><q-icon name="fa-solid fa-plus" /> Add New Accounts</h4>
-      <h4 style="margin-left: auto; margin-right: 0">{{ accounts.accounts?.length }} / {{ plan.plan?.account_limit }}<q-icon v-if="plan.plan?.name ==='business'" name="fa-solid fa-infinity fa-bounce" size="sm"/></h4>
+      <div style="margin-left: auto; margin-right: 0">
+        <h4>Connected: {{ accounts.accounts?.length }} | Enabled: {{ accounts.enabledAccounts.length }}  | Max: {{ plan.plan?.account_limit }}</h4>
+        <q-tooltip>You can connect and enable up to {{ plan.plan?.account_limit }} accounts</q-tooltip>
+      </div>
+
     </div>
     <div style="display: flex">
       <q-btn label="Mastodon" icon="fa-brands fa-mastodon"  style="color: #5d52e9" flat no-caps

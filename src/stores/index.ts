@@ -16,6 +16,7 @@ import { usePixelfedStore} from './Platform Stores/pixelfed';
 export async function initializeStores() {
   const authStore = useAuthStore();
   const subscriptionStore = useSubscriptionStore();
+  const plansStore = usePlansStore();
   const usageStore = useUsageStore();
   const connectedAccountsStore = useAccountsStore();
   const historyStore = useHistoryStore();
@@ -32,6 +33,7 @@ export async function initializeStores() {
     await Promise.all([
       connectedAccountsStore.init(),
       subscriptionStore.init(),
+      plansStore.init(),
       usageStore.init(),
       historyStore.init(),
       mastodonStore.init(),
