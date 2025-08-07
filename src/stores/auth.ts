@@ -57,8 +57,6 @@ export const useAuthStore = defineStore('auth', {
       await supabase.auth.signOut();
       this.user = null;
       this.loading = false;
-
-      window.location.href = "/";
     },
 
     async signUpWithEmail(email: string, password: string) {

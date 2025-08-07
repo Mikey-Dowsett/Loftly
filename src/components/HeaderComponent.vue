@@ -4,7 +4,9 @@ import { Dark, QMenu } from 'quasar';
 import { eventBus } from '../tools/event-bus';
 import { useAuthStore } from 'stores';
 import LoginWindow from '../components/LoginWindow.vue';
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
 const showLoginWindow = ref(false);
 const menuRef = ref<InstanceType<typeof QMenu> | null>(null);
 
@@ -17,6 +19,11 @@ const showLogin = () => {
 const toggleDark = () => {
   Dark.set(!Dark.mode);
   console.log(Dark.mode);
+}
+
+const signOut = async () => {
+  await auth.signOut();
+  await router.push("/");
 }
 
 eventBus.on('logged-in', () => {
@@ -102,7 +109,7 @@ eventBus.on('show-login', () => {
             </q-item-section>
           </q-item>
 
-          <q-item clickable @click="auth.signOut()" class="logout">
+          <q-item clickable @click="signOut()" class="logout">
             <q-item-section>
               <div class="text-weight-bold">Log Out</div>
             </q-item-section>
