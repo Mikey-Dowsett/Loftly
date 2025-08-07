@@ -40,6 +40,11 @@ eventBus.on('show-login', () => {
     <router-link v-if="auth.user" to="/post" class="link" active-class="link-active">
       <h4 style="font-size: x-large">Create Post</h4>
     </router-link>
+    <router-link to="/pricing" class="link" active-class="link-active">
+      <h4 style="font-size: x-large">Pricing</h4>
+    </router-link>
+    <q-btn v-show="!auth.user" @click="showLogin" class="account"
+           label="Login" flat color="positive" size="lg" />
 
     <q-btn v-if="auth.user" round flat icon="person" size="lg" aria-label="Account Menu">
       <q-menu anchor="bottom end" self="top end" ref="menuRef">
@@ -105,10 +110,6 @@ eventBus.on('show-login', () => {
         </q-list>
       </q-menu>
     </q-btn>
-    <q-btn v-show="!auth.user" to="/pricing" class="account"
-           label="Pricing" flat size="lg" />
-    <q-btn v-show="!auth.user" @click="showLogin" class="account"
-           label="Login" flat color="positive" size="lg" />
   </div>
 </div>
   <LoginWindow v-if="showLoginWindow" v-model="showLoginWindow" />

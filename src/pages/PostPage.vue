@@ -135,7 +135,7 @@ const onSubmit = async () => {
     loadingProgress.value = 0.9;
 
     const response = await axios.post(
-      `http://localhost:8000/create_post`,
+      `http://localhost:8000/create-post`,
       postPayload,
       {
         headers: {

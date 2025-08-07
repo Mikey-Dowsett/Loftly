@@ -4,6 +4,7 @@ import { useQuasar } from 'quasar';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from 'stores';
 import { useErrorHandling } from 'src/composables/useErrorHandling';
+import axios from 'axios';
 
 const $q = useQuasar();
 const auth = useAuthStore();
@@ -11,7 +12,6 @@ const router = useRouter();
 const { handleError } = useErrorHandling();
 
 const newEmail = ref('');
-const currentPassword = ref('');
 const newPassword = ref('');
 const confirmPassword = ref('');
 const confirmDelete = ref(false);
@@ -32,7 +32,7 @@ const updateEmail = async () => {
 };
 
 const updatePassword = async () => {
-  if (!currentPassword.value || !newPassword.value || !confirmPassword.value) return;
+  if (!newPassword.value || !confirmPassword.value) return;
 
   if (newPassword.value !== confirmPassword.value) {
     handleError('Passwords do not match');
@@ -45,7 +45,6 @@ const updatePassword = async () => {
     $q.notify({ type: 'positive', message: 'Password updated successfully', position: 'top-right' });
 
     // Optionally reset the fields
-    currentPassword.value = '';
     newPassword.value = '';
     confirmPassword.value = '';
   } catch (error) {
@@ -58,18 +57,26 @@ const signOut = async () => {
   await router.push('/');
 };
 
-const deleteAccount = () => {
+const deleteAccount = async () => {
   if (!auth.user) return;
 
-  // const { error } = await functions.invoke('delete-user', {
-  //   body: { user_id: auth.user?.id },
-  // });
-
-  // if (error) {
-  //   alert('Error deleting account: ' + error.message);
-  // } else {
-  //   await signOut();
-  // }
+  try {
+    const response = await axios.post('http://localhost:8000/delete-user', {
+      user_id: auth.user?.id
+    });
+    $q.notify({
+      message: 'Account deleted successfully',
+      type: 'positive',
+      position: 'top-right'
+    });
+    console.log(response.data);
+    await auth.signOut();
+    await router.push('/');
+  } catch (error) {
+    handleError(error);
+  } finally {
+    confirmDelete.value = false;
+  }
 };
 
 const emailRule = (val: string) =>
@@ -102,11 +109,6 @@ const emailRule = (val: string) =>
       <h5><strong>New Password</strong></h5>
       <!-- Update Password -->
       <div>
-        <q-input v-model="currentPassword" label="Current Password" type="password" standout clearable>
-          <template v-slot:prepend>
-            <q-icon name="fa-solid fa-key" />
-          </template>
-        </q-input>
         <q-input v-model="newPassword" label="New Password" type="password" standout clearable>
           <template v-slot:prepend>
             <q-icon name="fa-solid fa-key" />
@@ -140,12 +142,12 @@ const emailRule = (val: string) =>
     <q-dialog v-model="confirmDelete">
       <q-card>
         <q-card-section>
-          <div class="text-h6">Confirm Delete</div>
+          <h4><q-icon name="fa-solid fa-warning" color="negative" /> Confirm Delete</h4>
           <p>Are you sure you want to delete your account? This action is permanent.</p>
         </q-card-section>
         <q-card-actions align="right">
           <q-btn flat label="Cancel" v-close-popup />
-          <q-btn flat label="Delete" color="negative" @click="deleteAccount" />
+          <q-btn label="Delete" color="negative" @click="deleteAccount" />
         </q-card-actions>
       </q-card>
     </q-dialog>

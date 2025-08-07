@@ -4,8 +4,10 @@ import { useQuasar, QForm } from 'quasar';
 import { eventBus } from '../tools/event-bus';
 import { useAuthStore } from 'stores'
 import { supabase } from 'src/lib/supabase'
+import { useErrorHandling } from 'src/composables/useErrorHandling';
 
 const auth = useAuthStore()
+const { handleError } = useErrorHandling();
 
 const modelValue = defineModel<boolean | null>({default: false});
 const formRef = ref();
@@ -25,12 +27,7 @@ const handleAuth = async () => {
       timeout: 2000,
     });
   } catch (error) {
-    $q.notify({
-      type: 'negative',
-      message: 'Something went wrong',
-      position: 'top-right',
-      timeout: 2000,
-    });
+    handleError(error);
     console.error(error);
   }
 };
@@ -41,7 +38,7 @@ const sendRecoveryEmail = async () => {
   });
 
   if (error) {
-    $q.notify({ type: 'negative', message: error.message });
+    handleError(error);
   } else {
     $q.notify({ type: 'info', message: 'Recovery email sent!', position: 'top-right' });
   }
