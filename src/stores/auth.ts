@@ -104,39 +104,43 @@ export const useAuthStore = defineStore('auth', {
       ]);
     },
 
-    setupAuthListener() {
-      supabase.auth.onAuthStateChange(async (_event, session) => {
-        if (this.updating) return;
+    async setupAuthListener() {
+      const { useAccountsStore } = await import('./accounts');
+      const { useHistoryStore } = await import('./history');
+      const { usePlansStore } = await import('./plans');
+      const { useSubscriptionStore } = await import('./subscription');
+      const { useUsageStore } = await import('./usage');
+
+      const connectedAccountsStore = useAccountsStore();
+      const historyStore = useHistoryStore();
+      const plansStore = usePlansStore();
+      const subscriptionsStore = useSubscriptionStore();
+      const usageStore = useUsageStore();
+
+      const lastUserId = this.user?.id;
+
+      supabase.auth.onAuthStateChange((_event, session) => {
+        const newUserId = session?.user?.id;
+        if (this.updating || newUserId === lastUserId) return;
         this.user = session?.user || null;
 
-        // Trigger other stores to update when auth state changes
-        const { useAccountsStore } = await import('./accounts');
-        const { useHistoryStore } = await import('./history');
-        const { usePlansStore } = await import('./plans');
-        const { useSubscriptionStore } = await import('./subscription');
-        const { useUsageStore } = await import('./usage');
-
-        const connectedAccountsStore = useAccountsStore();
-        const historyStore = useHistoryStore();
-        const plansStore = usePlansStore();
-        const subscriptionsStore = useSubscriptionStore();
-        const usageStore = useUsageStore();
-
-        if (this.user) {
-          await Promise.allSettled([
-            connectedAccountsStore.init(),
-            historyStore.init(),
-            plansStore.init(),
-            subscriptionsStore.init(),
-            usageStore.init()
-          ]);
-        } else {
-          connectedAccountsStore.clearAccounts();
-          historyStore.clearHistory();
-          plansStore.clearPlan();
-          subscriptionsStore.clearSubscription();
-          usageStore.clearUsage();
-        }
+        void (async () => {
+          if (this.user) {
+            await Promise.allSettled([
+              connectedAccountsStore.init(),
+              historyStore.init(),
+              plansStore.init(),
+              subscriptionsStore.init(),
+              usageStore.init()
+            ]);
+          } else {
+            connectedAccountsStore.clearAccounts();
+            historyStore.clearHistory();
+            plansStore.clearPlan();
+            subscriptionsStore.clearSubscription();
+            usageStore.clearUsage();
+          }
+        })();
       });
     },
 
@@ -174,7 +178,7 @@ export const useAuthStore = defineStore('auth', {
     async init() {
       this.loading = true;
       await this.fetchUser();
-      this.setupAuthListener();
+      await this.setupAuthListener();
       this.loading = false;
     },
   },
