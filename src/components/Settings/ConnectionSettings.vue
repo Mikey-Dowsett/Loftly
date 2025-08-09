@@ -4,10 +4,10 @@ import { eventBus } from 'src/tools/event-bus';
 import { useAccountsStore, usePlansStore } from 'stores';
 import { Platform, type ConnectedAccount } from 'src/stores/models';
 
-import ConnectLemmyComponent from 'components/Account Components/ConnectLemmyComponent.vue';
-import ConnectPixelfedComponent from 'components/Account Components/ConnectPixelfedComponent.vue';
-import ConnectMastodonComponent from 'components/Account Components/ConnectMastodonComponent.vue';
-import ConnectBlueSkyComponent from 'components/Account Components/ConnectBlueskyComponent.vue';
+import ConnectLemmyComponent from 'components/Connections/ConnectLemmyComponent.vue';
+import ConnectPixelfedComponent from 'components/Connections/ConnectPixelfedComponent.vue';
+import ConnectMastodonComponent from 'components/Connections/ConnectMastodonComponent.vue';
+import ConnectBlueSkyComponent from 'components/Connections/ConnectBlueskyComponent.vue';
 import { useErrorHandling } from 'src/composables/useErrorHandling';
 
 const accounts = useAccountsStore();
@@ -140,8 +140,10 @@ onMounted( async () => {
       <q-tooltip>Open this account page</q-tooltip>
     </q-btn>
     <div class="actions">
-      <q-toggle color="positive" v-model="item.enabled" size="md" @update:model-value="toggleAccount(item)">
-        <q-tooltip>Enable this account by default?</q-tooltip>
+      <q-toggle color="positive" v-model="item.enabled" size="md" @update:model-value="toggleAccount(item)"
+        :disable="!item.enabled && accounts.enabledAccounts.length === plan.plan?.account_limit">
+        <q-tooltip v-if="item.enabled || accounts.enabledAccounts.length !== plan.plan?.account_limit">Enable this account by default?</q-tooltip>
+        <q-tooltip v-else>Upgrade your plan to enable more than {{ plan.plan?.account_limit }} accounts</q-tooltip>
       </q-toggle>
       <q-separator vertical class="visible-separator" />
       <q-btn

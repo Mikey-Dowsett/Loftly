@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
-import { useAccountsStore } from 'stores';
+import { useAccountsStore, usePlansStore } from 'stores';
 import { Platform } from 'src/stores/models';
 
 const accounts = useAccountsStore();
+const plan = usePlansStore();
 
 const platforms: { name: Platform; label: string; icon: string; color: string }[] = [
   {
@@ -63,8 +64,10 @@ watch(
         <q-tooltip>Open this account page</q-tooltip>
       </q-btn>
       <div class="actions">
-        <q-toggle color="positive" v-model="item.enabled" size="sm">
-          <q-tooltip>Post to this account?</q-tooltip>
+        <q-toggle color="positive" v-model="item.enabled" size="sm"
+                  :disable="!item.enabled && accounts.enabledAccounts.length === plan.plan?.account_limit">
+          <q-tooltip v-if="item.enabled || accounts.enabledAccounts.length !== plan.plan?.account_limit">Post to this account?</q-tooltip>
+          <q-tooltip v-else>Upgrade your plan to enable more than {{ plan.plan?.account_limit }} accounts</q-tooltip>
         </q-toggle>
         <q-btn
           icon="fa-solid fa-trash"

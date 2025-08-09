@@ -7,7 +7,7 @@ import { useAuthStore, useStorageStore, useAccountsStore,
   useUsageStore, usePlansStore} from 'stores';
 import { useErrorHandling } from 'src/composables/useErrorHandling';
 
-import ConnectAccountsComponent from 'components/Account Components/ConnectAccountsComponent.vue';
+import ConnectAccountsComponent from 'components/Connections/ConnectAccountsComponent.vue';
 import LemmyCommunitiesSearchComponent from 'components/LemmyCommunitiesSearchComponent.vue';
 
 const auth = useAuthStore();

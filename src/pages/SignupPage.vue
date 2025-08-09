@@ -3,10 +3,10 @@ import { ref } from 'vue';
 import { useQuasar, QForm } from 'quasar';
 import { eventBus } from '../tools/event-bus';
 import { useAuthStore } from 'stores'
-import ConnectLemmyComponent from 'components/Account Components/ConnectLemmyComponent.vue';
-import ConnectPixelfedComponent from 'components/Account Components/ConnectPixelfedComponent.vue';
-import ConnectBlueSkyComponent from 'components/Account Components/ConnectBlueskyComponent.vue';
-import ConnectMastodonComponent from 'components/Account Components/ConnectMastodonComponent.vue';
+import ConnectLemmyComponent from 'components/Connections/ConnectLemmyComponent.vue';
+import ConnectPixelfedComponent from 'components/Connections/ConnectPixelfedComponent.vue';
+import ConnectBlueSkyComponent from 'components/Connections/ConnectBlueskyComponent.vue';
+import ConnectMastodonComponent from 'components/Connections/ConnectMastodonComponent.vue';
 
 const auth = useAuthStore();
 

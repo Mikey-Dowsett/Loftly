@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { supabase } from '../lib/supabase'
 import { type ConnectedAccount, type Platform } from './models';
-import { useAuthStore } from './auth'
+import { useAuthStore, usePlansStore } from 'stores'
 
 export const useAccountsStore = defineStore('accounts', {
   state: () => ({
@@ -69,6 +69,9 @@ export const useAccountsStore = defineStore('accounts', {
       const account = this.accounts.find(acc => acc.id === id);
       if (!account) return;
       console.log(account);
+
+      const plan = usePlansStore();
+      if (this.enabledAccounts.length > (plan.plan?.account_limit ?? 0)) return;
 
       const { error } = await supabase.from('linked_accounts')
         .update({enabled: account.enabled})
