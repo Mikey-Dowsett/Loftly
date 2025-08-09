@@ -220,6 +220,8 @@ function onFileChange() {
   try {
     // Revoke previous URLs to prevent memory leaks
     images.value.forEach(({ url }) => URL.revokeObjectURL(url));
+    images.value = [];
+    if (!rawImages.value || rawImages.value.length === 0) return;
 
     // Validate files before creating URLs
     const validFiles = rawImages.value.filter(file => {
