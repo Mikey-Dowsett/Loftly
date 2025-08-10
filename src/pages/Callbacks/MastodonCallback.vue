@@ -1,33 +1,27 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { useQuasar } from 'quasar';
 import { useAuthStore, useMastodonStore } from 'stores'
+import { useErrorHandling } from 'src/composables/useErrorHandling';
+import { useNotify } from 'src/composables/useNotifications';
 
-const $q = useQuasar();
 const route = useRoute();
 const router = useRouter();
 const auth = useAuthStore();
+const { handleError } = useErrorHandling();
+const { notifySuccess } = useNotify();
 const mastodon = useMastodonStore();
 
 onMounted(async () => {
   if(!auth.user) {
-    $q.notify({
-      type: 'negative',
-      message: 'Please login first.',
-      position: 'top-right'
-    });
+    handleError('Please login first');
     return await router.push('/');
   }
   const code = route.query.code as string;
   const instance = String(route.query.state);
 
   if (!code) {
-    $q.notify({
-      type: 'negative',
-      message: 'No code returned from Mastodon.',
-      position: 'top-right'
-    });
+    handleError('No code returned from Mastodon');
     return await router.push('/settings/connections');
   }
 
@@ -35,25 +29,12 @@ onMounted(async () => {
     const response = await mastodon.connectAccount(code, instance);
 
     if(response === 'Account Connected')
-      $q.notify({
-        type: 'positive',
-        message: 'Mastodon account connected!',
-        position: 'top-right'
-      });
+      notifySuccess(response);
     else
-      $q.notify({
-        type: 'negative',
-        message: response,
-        position: 'top-right'
-      })
+      handleError(response);
     return await router.push('/settings/connections');
   } catch (error) {
-    console.error(error);
-    $q.notify({
-      type: 'negative',
-      message: 'Mastodon connection failed.',
-      position: 'top-right'
-    });
+    handleError(error);
     return await router.push('/settings/connections');
   }
 });

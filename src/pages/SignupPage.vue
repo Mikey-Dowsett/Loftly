@@ -1,20 +1,24 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useQuasar, QForm } from 'quasar';
+import { QForm } from 'quasar';
 import { eventBus } from '../tools/event-bus';
 import { useAuthStore } from 'stores'
+import { useErrorHandling } from 'src/composables/useErrorHandling';
+import { useNotify } from 'src/composables/useNotifications';
+
 import ConnectLemmyComponent from 'components/Connections/ConnectLemmyComponent.vue';
 import ConnectPixelfedComponent from 'components/Connections/ConnectPixelfedComponent.vue';
 import ConnectBlueSkyComponent from 'components/Connections/ConnectBlueskyComponent.vue';
 import ConnectMastodonComponent from 'components/Connections/ConnectMastodonComponent.vue';
 
 const auth = useAuthStore();
+const { handleError } = useErrorHandling();
+const { notifyInfo, notifySuccess } = useNotify();
 
 const formRef = ref();
 const email = ref('');
 const password = ref('');
 const confirmPassword = ref('');
-const $q = useQuasar();
 
 const showVerificationDialog = ref(false);
 const verificationCode = ref('');
@@ -39,17 +43,9 @@ const handleAuth = async () => {
 
     showVerificationDialog.value = true;
 
-    $q.notify({
-      type: 'info',
-      message: 'Check your email for a verification code.',
-      position: 'top-right',
-    });
+    notifyInfo('Check your email for a verification code');
   } catch (error) {
-    $q.notify({
-      type: 'negative',
-      message: 'Something went wrong',
-      position: 'top-right',
-    });
+    handleError(error);
     console.error(error);
   }
 };
@@ -64,19 +60,10 @@ const submitVerificationCode = async () => {
     await auth.verifyEmailWithCode(pendingEmail.value, verificationCode.value);
 
     showVerificationDialog.value = false;
-    $q.notify({
-      type: 'positive',
-      message: 'Email verified and logged in!',
-      position: 'top-right',
-    });
+    notifySuccess('Email verified! Logging you in...');
     showOnboardDialog.value = true;
-  } catch (err) {
-    $q.notify({
-      type: 'negative',
-      message: 'Invalid or expired code',
-      position: 'top-right',
-    });
-    console.error(err);
+  } catch (error) {
+    handleError(error);
   }
 };
 

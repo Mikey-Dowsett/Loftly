@@ -3,11 +3,13 @@ import { onMounted, ref } from 'vue';
 import { eventBus } from 'src/tools/event-bus';
 import { useAccountsStore, useLemmyStore, usePlansStore } from 'stores';
 import { useErrorHandling } from 'src/composables/useErrorHandling';
+import { useNotify } from 'src/composables/useNotifications';
 
 const plan = usePlansStore();
 const accounts = useAccountsStore();
 const lemmyStore = useLemmyStore();
 const { handleError } = useErrorHandling();
+const { notifySuccess } = useNotify();
 
 const username = ref('');
 const password = ref('');
@@ -19,7 +21,7 @@ async function connectAccount() {
   try {
     await lemmyStore.connectAccount(username.value, password.value,
       tfa.value, instance.value);
-
+    notifySuccess('Account Connected');
     closeWindow();
   } catch (error) {
     handleError(error);
@@ -96,8 +98,13 @@ onMounted(() => {
             <q-icon name="fa-solid fa-key" />
           </template>
         </q-input>
-        <q-btn type="Submit" label="Connect" class="submit" color="positive"
-               :loading="lemmyStore.connecting"/>
+        <q-btn
+          type="Submit"
+          label="Connect"
+          class="submit"
+          color="positive"
+          :loading="lemmyStore.connecting"
+        />
       </q-form>
       <q-btn icon="fa-solid fa-close" flat round class="close" @click="closeWindow" />
     </q-card>

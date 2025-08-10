@@ -1,31 +1,27 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useQuasar, QForm } from 'quasar';
+import { QForm } from 'quasar';
 import { eventBus } from '../tools/event-bus';
 import { useAuthStore } from 'stores'
 import { supabase } from 'src/lib/supabase'
 import { useErrorHandling } from 'src/composables/useErrorHandling';
+import { useNotify } from 'src/composables/useNotifications';
 
 const auth = useAuthStore()
 const { handleError } = useErrorHandling();
+const { notifySuccess, notifyInfo } = useNotify();
 
 const modelValue = defineModel<boolean | null>({default: false});
 const formRef = ref();
 const email = ref('');
 const password = ref('');
-const $q = useQuasar();
 
 const handleAuth = async () => {
   try {
     await auth.signInWithEmail(email.value, password.value);
 
     eventBus.emit('logged-in');
-    $q.notify({
-      type: 'positive',
-      message: 'Successfully logged in',
-      position: 'top-right',
-      timeout: 2000,
-    });
+    notifySuccess('Successfully logged in');
   } catch (error) {
     handleError(error);
     console.error(error);
@@ -40,7 +36,7 @@ const sendRecoveryEmail = async () => {
   if (error) {
     handleError(error);
   } else {
-    $q.notify({ type: 'info', message: 'Recovery email sent!', position: 'top-right' });
+    notifyInfo('Recovery email sent!');
   }
 };
 

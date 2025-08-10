@@ -51,7 +51,7 @@ eventBus.on('show-login', () => {
       <h4 style="font-size: x-large">Pricing</h4>
     </router-link>
     <q-btn v-show="!auth.user" @click="showLogin" class="account"
-           label="Login" flat color="positive" size="lg" />
+           label="Login" flat color="positive" size="lg" no-caps style="font-size: x-large; font-weight: normal;" />
 
     <q-btn v-if="auth.user" round flat icon="person" size="lg" aria-label="Account Menu">
       <q-menu anchor="bottom end" self="top end" ref="menuRef">

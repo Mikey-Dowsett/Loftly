@@ -72,30 +72,30 @@ const features = [
     description: 'Write once and publish to multiple platforms instantly.',
   },
   {
-    icon: 'fa-solid fa-calendar-days',
-    title: 'Scheduled Posts',
-    description: 'Plan ahead and let Loftly handle the timing.',
-  },
-  {
     icon: 'fa-solid fa-puzzle-piece',
     title: 'Custom Instances',
     description: 'Support for your favorite or private Fediverse servers.',
   },
+  // {
+  //   icon: 'fa-solid fa-calendar-days',
+  //   title: 'Scheduled Posts',
+  //   description: 'Plan ahead and let Loftly handle the timing.',
+  // },
   {
     icon: 'fa-solid fa-user-shield',
     title: 'Privacy First',
     description: 'No tracking. No ads. Your data stays yours.',
   },
-  {
-    icon: 'fa-solid fa-robot',
-    title: 'Smart Suggestions',
-    description: 'Get AI help to improve or rephrase your posts.',
-  },
-  {
-    icon: 'fa-solid fa-chart-line',
-    title: 'Cross-platform Analytics',
-    description: 'Understand how your posts perform everywhere.',
-  },
+  // {
+  //   icon: 'fa-solid fa-robot',
+  //   title: 'Smart Suggestions',
+  //   description: 'Get AI help to improve or rephrase your posts.',
+  // },
+  // {
+  //   icon: 'fa-solid fa-chart-line',
+  //   title: 'Cross-platform Analytics',
+  //   description: 'Understand how your posts perform everywhere.',
+  // },
 ];
 
 const platforms = [
@@ -149,12 +149,6 @@ const platforms = [
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 2rem;
   padding: 2rem;
-}
-.platform {
-  transition: transform 0.2s ease;
-}
-.platform:hover {
-  transform: scale(1.05);
 }
 
 .call-to-action {

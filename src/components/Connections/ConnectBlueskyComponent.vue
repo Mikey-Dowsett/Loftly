@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { useQuasar } from 'quasar';
 import { eventBus } from 'src/tools/event-bus';
 import { usePlansStore, useAccountsStore, useBlueskyStore } from 'stores';
 import { useErrorHandling } from 'src/composables/useErrorHandling';
+import { useNotify } from 'src/composables/useNotifications';
 
-const $q = useQuasar();
 const plan = usePlansStore();
 const accounts = useAccountsStore();
 const bluesky = useBlueskyStore();
 const { handleError } = useErrorHandling();
+const { notifySuccess } = useNotify();
 
 const handle = ref('');
 const appPassword = ref('');
@@ -20,11 +20,7 @@ async function connectAccount() {
   const response = await bluesky.connectAccount(handle.value, appPassword.value);
 
   if (response === 'Account Connected') {
-    $q.notify({
-      message: 'Connected successfully!',
-      type: 'positive',
-      position: 'top-right',
-    });
+    notifySuccess(response);
   } else {
     handleError(response);
   }

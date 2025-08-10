@@ -1,15 +1,15 @@
 <script setup lang="ts">
+import axios from 'axios';
 import { ref } from 'vue';
-import { useQuasar } from 'quasar';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from 'stores';
 import { useErrorHandling } from 'src/composables/useErrorHandling';
-import axios from 'axios';
+import { useNotify } from 'src/composables/useNotifications';
 
-const $q = useQuasar();
 const auth = useAuthStore();
 const router = useRouter();
 const { handleError } = useErrorHandling();
+const { notifyInfo, notifySuccess } = useNotify();
 
 const newEmail = ref('');
 const newPassword = ref('');
@@ -18,11 +18,7 @@ const confirmDelete = ref(false);
 
 const updateEmail = async () => {
   if (!newEmail.value) return;
-  $q.notify({
-    message: 'Please check your inbox for a confirmation link',
-    type: 'info',
-    position: 'top-right'
-  });
+  notifyInfo('Please check your inbox for a confirmation link');
 
   try{
     await auth.updateUserEmail(newEmail.value);
@@ -42,7 +38,7 @@ const updatePassword = async () => {
   try {
     await auth.updateUserPassword(newPassword.value);
     console.log('Password updated successfully');
-    $q.notify({ type: 'positive', message: 'Password updated successfully', position: 'top-right' });
+    notifySuccess('Password updated successfully');
 
     // Optionally reset the fields
     newPassword.value = '';
@@ -64,11 +60,7 @@ const deleteAccount = async () => {
     const response = await axios.post('http://localhost:8000/delete-user', {
       user_id: auth.user?.id
     });
-    $q.notify({
-      message: 'Account deleted successfully',
-      type: 'positive',
-      position: 'top-right'
-    });
+    notifySuccess('Account deleted successfully');
     console.log(response.data);
     await auth.signOut();
     await router.push('/');

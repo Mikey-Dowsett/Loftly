@@ -10,7 +10,6 @@ const subscription = useSubscriptionStore();
 const { handleError } = useErrorHandling();
 
 const loading = ref(false);
-// const portalUrl = ref('');
 
 // Open Stripe Customer Portal
 const openCustomerPortal = async () => {

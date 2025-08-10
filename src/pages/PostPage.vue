@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { watch, ref, onMounted, onUnmounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { QExpansionItem, useQuasar } from 'quasar';
+import { QExpansionItem } from 'quasar';
 import axios from 'axios';
 import { useAuthStore, useStorageStore, useAccountsStore,
   useUsageStore, usePlansStore} from 'stores';
 import { useErrorHandling } from 'src/composables/useErrorHandling';
+import { useNotify } from 'src/composables/useNotifications';
 
 import ConnectAccountsComponent from 'components/Connections/ConnectAccountsComponent.vue';
 import LemmyCommunitiesSearchComponent from 'components/LemmyCommunitiesSearchComponent.vue';
@@ -15,10 +16,10 @@ const accounts = useAccountsStore();
 const plan = usePlansStore();
 const storage = useStorageStore();
 const usage = useUsageStore();
-const $q = useQuasar();
 const $router = useRouter();
 
 const { handleError, validatePost, showValidationErrors } = useErrorHandling();
+const { notifySuccess } = useNotify();
 
 const title = ref('');
 const message = ref('');
@@ -152,19 +153,7 @@ const onSubmit = async () => {
     loadingStep.value = 'Post created successfully!';
     loadingProgress.value = 1;
 
-    $q.notify({
-      type: 'positive',
-      message: 'Post created successfully!',
-      position: 'top-right',
-      timeout: 3000,
-      actions: [
-        {
-          icon: 'fa-solid fa-close',
-          color: 'white',
-          handler: () => {}
-        }
-      ]
-    });
+    notifySuccess('Post created successfully');
 
     resetForm();
   } catch (error) {
@@ -227,20 +216,12 @@ function onFileChange() {
     const validFiles = rawImages.value.filter(file => {
       // Basic file validation
       if (!file.type.startsWith('image/')) {
-        $q.notify({
-          type: 'negative',
-          message: `"${file.name}" is not a valid image file`,
-          position: 'top-right'
-        });
+        handleError(`${file.name} is not a valid image file`, 'File Validation');
         return false;
       }
 
       if (file.size > 10 * 1024 * 1024) { // 10MB limit
-        $q.notify({
-          type: 'negative',
-          message: `"${file.name}" is too large (max 10MB)`,
-          position: 'top-right'
-        });
+        handleError(`${file.name} is not a valid image file`, 'File Validation');
         return false;
       }
 
@@ -337,15 +318,12 @@ watch(media_tab, (val) => {
 onMounted(async () => {
   try {
     if (!auth.user) {
-      $q.notify({
-        type: 'negative',
-        message: 'Please log in to create posts',
-        position: 'top-right',
-        timeout: 5000
-      });
+      handleError('Please login to create posts', 'Authentication');
 
-      await $router.push('/login');
+      await $router.push('/signup');
     }
+
+    await plan.init();
   } catch (error) {
     handleError(error, 'Component Mount');
   }
@@ -386,26 +364,26 @@ onUnmounted(() => {
           </template>
         </q-input>
 
-        <q-input
-          v-if="plan.plan?.name !== 'free'"
-          label="Hashtags"
-          v-model="tags"
-          outlined
-          type="textarea"
-          autogrow
-          bottom-slots
-          hint="Used for Bluesky, Mastodon"
-          style="font-size: large"
-          input-style="min-height: 5rem; max-height: 5rem; overflow-y: auto;"
-          hide-bottom-space
-        >
-          <template v-slot:prepend>
-            <q-icon name="fa-solid fa-hashtag" />
-          </template>
-          <template v-slot:counter>
-            <q-btn label="Generate with AI" class="submit" color="positive" size="sm" />
-          </template>
-        </q-input>
+<!--        <q-input-->
+<!--          v-if="plan.plan?.name !== 'free'"-->
+<!--          label="Hashtags"-->
+<!--          v-model="tags"-->
+<!--          outlined-->
+<!--          type="textarea"-->
+<!--          autogrow-->
+<!--          bottom-slots-->
+<!--          hint="Used for Bluesky, Mastodon"-->
+<!--          style="font-size: large"-->
+<!--          input-style="min-height: 5rem; max-height: 5rem; overflow-y: auto;"-->
+<!--          hide-bottom-space-->
+<!--        >-->
+<!--          <template v-slot:prepend>-->
+<!--            <q-icon name="fa-solid fa-hashtag" />-->
+<!--          </template>-->
+<!--          <template v-slot:counter>-->
+<!--            <q-btn label="Generate with AI" class="submit" color="positive" size="sm" />-->
+<!--          </template>-->
+<!--        </q-input>-->
 
         <q-separator />
 

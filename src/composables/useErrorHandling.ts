@@ -1,4 +1,4 @@
-import { useQuasar } from 'quasar';
+import { useNotify } from './useNotifications';
 
 export interface AppError {
   type: 'validation' | 'upload' | 'network' | 'server' | 'unknown';
@@ -28,10 +28,8 @@ interface AxiosError {
   response: AxiosErrorResponse;
 }
 
-export function useErrorHandling() {
-  const $q = useQuasar();
-
-  // Create structured error objects based on error type
+export function useErrorHandling() {// Create structured error objects based on error type
+  const { notifyError } = useNotify();
   const createError = (
     type: AppError['type'],
     message: string,
@@ -207,19 +205,7 @@ export function useErrorHandling() {
     }
 
     // Show user-friendly notification
-    $q.notify({
-      type: 'negative',
-      message: appError.message,
-      position: 'top-right',
-      timeout: appError.type === 'network' ? 8000 : 5000, // Network errors need more time
-      actions: [
-        {
-          icon: 'close',
-          color: 'white',
-          handler: () => {}
-        }
-      ]
-    });
+    notifyError(appError.message);
 
     // Return the structured error for further handling if needed
     return appError;
@@ -311,19 +297,7 @@ export function useErrorHandling() {
   // Show validation errors to user with notifications
   const showValidationErrors = (errors: AppError[]) => {
     errors.forEach(error => {
-      $q.notify({
-        type: 'negative',
-        message: error.userMessage,
-        position: 'top-right',
-        timeout: 5000,
-        actions: [
-          {
-            icon: 'close',
-            color: 'white',
-            handler: () => {}
-          }
-        ]
-      });
+      notifyError(error.userMessage);
     });
   };
 

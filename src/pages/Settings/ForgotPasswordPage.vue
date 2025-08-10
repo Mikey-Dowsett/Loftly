@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useQuasar } from 'quasar';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from 'stores';
 import { useErrorHandling } from 'src/composables/useErrorHandling';
+import { useNotify } from 'src/composables/useNotifications';
 
-const $q = useQuasar();
 const auth = useAuthStore();
 const { handleError } = useErrorHandling();
+const { notifySuccess } = useNotify();
 const $router = useRouter();
 
 const newPassword = ref('');
@@ -27,7 +27,7 @@ const resetPassword = async () => {
   try {
     await auth.updateUserPassword(newPassword.value);
 
-    $q.notify({ type: 'positive', message: 'Password reset successfully!', position: 'top-right' });
+    notifySuccess('Successfully updated password');
     await $router.push('/settings/account');
   } catch (error) {
     handleError(error);
