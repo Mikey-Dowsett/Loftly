@@ -155,7 +155,7 @@ const securePasswordRule = (val: string) =>
   <q-dialog v-model="showVerificationDialog" persistent>
     <q-card class="q-pa-md" style="min-width: 300px">
       <q-card-section>
-        <div class="text-h6">Enter Verification Code</div>
+        <h4>Enter Verification Code</h4>
         <p class="text-subtitle2">Check your email and enter the code to complete registration.</p>
       </q-card-section>
 

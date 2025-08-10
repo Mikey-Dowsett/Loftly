@@ -10,6 +10,17 @@ function getSubPosts(postId: number): AccountPost[] {
   return historyStore.sub_posts.filter((sp) => sp.post_id === postId)
 }
 
+function openLink(url: string, platform: string): void {
+  if (platform === 'bluesky') {
+    const did = url.split("at://")[1]
+    const profile = did?.split("/")[0]
+    const post = did?.split("/")[2]
+    url = `https://bsky.app/profile/${profile}/post/${post}`
+  }
+
+  window.open(url, '_blank')
+}
+
 function formatDate(d: string): string {
   return date.formatDate(d, 'HH:mm DD/MM/YYYY')
 }
@@ -71,7 +82,7 @@ function getPostColor(status: string): string {
                 </div>
                 <div v-if="sub.post_url" class="q-mt-auto q-mb-auto q-mr-none q-ml-auto">
                   <q-btn
-                    :href="sub.post_url"
+                    @click="openLink(sub.post_url, sub.platform)"
                     target="_blank"
                     label="View Post"
                     flat
