@@ -2,7 +2,6 @@
 import { onMounted, ref } from 'vue';
 import { eventBus } from 'src/tools/event-bus';
 import { useAccountsStore, useMastodonStore, usePlansStore } from 'stores';
-import type { Instances } from 'stores/models';
 import { useErrorHandling } from 'src/composables/useErrorHandling';
 
 const plan = usePlansStore();
@@ -10,33 +9,12 @@ const accounts = useAccountsStore();
 const mastodon = useMastodonStore();
 const { handleError } = useErrorHandling();
 
-const instances = mastodon.getInstances;
 const instance = ref('');
 const modelValue = defineModel<boolean | null>({ default: false });
 
 async function connectAccount() {
   try {
-    if (!instances.find((x: Instances) => x.instance === instance.value)) {
-      await mastodon.registerInstance(instance.value);
-      await new Promise(resolve => setTimeout(resolve, 2000));
-    }
-
-    const scope = 'read write';
-    const selectedInstance = instances.find((x: Instances) => x.instance === instance.value);
-    const redirectUri = 'http://localhost:9000/mastodon/callback';
-    console.log('Selected Instance', selectedInstance);
-    if (!selectedInstance) throw new Error('Instance not found. Try refreshing the page');
-
-    const authUrl = `https://${instance.value}/oauth/authorize` +
-      `?client_id=${selectedInstance?.client_key}` +
-      `&redirect_uri=${encodeURIComponent(redirectUri)}` +
-      `&response_type=code` +
-      `&scope=${encodeURIComponent(scope)}` +
-      `&state=${instance.value}`;
-
-    console.log("Redirecting to Mastodon:", authUrl);
-
-    window.location.href = authUrl;
+    await mastodon.startAccountConnection(instance.value);
   } catch (error) {
     handleError(error);
   }
@@ -66,7 +44,7 @@ onMounted(() => {
       <q-form @submit.prevent="connectAccount" autocomplete="off">
         <q-input v-model="instance" standout label="Instance"
                  hint="e.g. mastodon.social" required/>
-        <q-btn type="submit" label="Connect" class="submit" color="positive" />
+        <q-btn type="submit" label="Connect" class="submit" color="positive" :loading="mastodon.loading" />
       </q-form>
       <q-btn icon="fa-solid fa-close" flat round class="close" @click="closeWindow" />
     </q-card>

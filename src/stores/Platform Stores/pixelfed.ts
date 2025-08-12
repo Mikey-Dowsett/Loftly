@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import generator from 'megalodon';
 import { supabase } from 'src/lib/supabase'
 import { type Instances } from '../models'
 import { eventBus } from 'src/tools/event-bus'
@@ -34,41 +35,31 @@ export const usePixelfedStore = defineStore('pixelfed', {
     },
 
     async registerInstance(instance: string) {
+      this.loading = true;
       const redirectUri = 'http://localhost:9000/pixelfed/callback';
 
       try {
-        const response = await fetch(`https://${instance}/api/v1/apps`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            client_name: 'Loftly',
-            redirect_uris: redirectUri,
-            scopes: 'read write',
-            website: 'http://localhost:9000',
-          }),
+        const client = generator('pixelfed', `https://${instance}`);
+
+        const appData = await client.registerApp('Loftly', {
+          scopes: ['read', 'write'],
+          redirect_uris: redirectUri,
+          website: 'http://localhost:9000'
         });
 
-        if (!response.ok) {
-          throw new Error(`Failed to register app: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-
-        console.log('Storing Instance', data);
-        await supabase.from('instances').insert({
+        const { data, error } = await supabase.from('instances').insert({
           platform: 'pixelfed',
           instance,
-          client_key: data.client_id,
-          client_secret: data.client_secret,
-        });
+          client_key: appData.client_id,
+          client_secret: appData.client_secret,
+        }).select().single();
 
-        await new Promise(resolve => setTimeout(resolve, 2000));
-
-        return await this.fetchInstances();
+        if (error) throw error;
+        return data;
       } catch (error) {
         handleError(error);
+      } finally {
+        this.loading = false;
       }
     },
 
@@ -80,45 +71,26 @@ export const usePixelfedStore = defineStore('pixelfed', {
         await this.fetchInstances();
       }
 
+      const instance = this.instances.find((x) => x.instance === instanceUrl);
+      if (!instance) return `Missing instance ${instanceUrl}`;
+
       this.connecting = true;
       const redirectUri = 'http://localhost:9000/pixelfed/callback';
-      const instance = this.instances.find((x: Instances) => x.instance === instanceUrl);
-
-      if(!instance) return `Missing instance ${instance}`;
 
       try {
-        const tokenResponse = await fetch(`https://${instanceUrl}/oauth/token`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: new URLSearchParams({
-            client_id: instance.client_key,
-            client_secret: instance.client_secret,
-            grant_type: 'authorization_code',
-            code,
-            redirect_uri: redirectUri,
-          }).toString(),
-        });
+        const client = generator('pixelfed', `https://${instance.instance}`)
 
-        if (!tokenResponse.ok) {
-          const err = await tokenResponse.text();
-          return `Token exchange failed: ${err}`;
-        }
-
-        const tokenData = await tokenResponse.json();
+        // Get token from auth code
+        const tokenData = await client.fetchAccessToken(
+          instance.client_key,
+          instance.client_secret,
+          code,
+          redirectUri
+        );
         const accessToken = tokenData.access_token;
 
-        const accountResponse = await fetch(`https://${instance.instance}/api/v1/accounts/verify_credentials`, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
-
-        if (!accountResponse.ok) {
-          const err = await accountResponse.text();
-          return `Failed to fetch account: ${err}`;
-        }
-
-        const account = await accountResponse.json();
+        const authedClient = generator('pixelfed', `https://${instance.instance}`, accessToken)
+        const { data: account } = await authedClient.verifyAccountCredentials()
 
         await supabase.from('linked_accounts').insert({
           user_id: auth.user.id,
@@ -133,18 +105,59 @@ export const usePixelfedStore = defineStore('pixelfed', {
           token_expires_at: null,
         });
 
-        eventBus.emit('close-mastodon-login');
+        eventBus.emit('close-pixelfed-login');
 
         const connectedAccountsStore = useAccountsStore();
         await connectedAccountsStore.fetchConnectedAccounts();
 
         return 'Account Connected';
       } catch (e: unknown) {
-        if (e instanceof Error) return e.message;
-        if (typeof e === 'string') return e;
-        return 'An unknown error occurred.';
+        handleError(e);
+        return e;
       } finally {
         this.connecting = false;
+      }
+    },
+
+    async startAccountConnection(instanceUrl: string) {
+      try {
+        // Ensure instance exists in DB
+        let selectedInstance = this.instances.find((x) => x.instance === instanceUrl);
+        if (!selectedInstance) {
+          // Register instance and get fresh inserted row immediately
+          const newInstance = await this.registerInstance(instanceUrl);
+          if (!newInstance) throw new Error('Failed to register instance');
+
+          // Update local instances list and use the new instance directly
+          this.instances.push(newInstance);
+          selectedInstance = newInstance;
+        }
+
+        if (!selectedInstance) {
+          throw new Error('Instance not found. Try refreshing the page');
+        }
+        this.loading = true;
+
+        const redirectUri = 'http://localhost:9000/pixelfed/callback';
+        const scope = 'read write';
+
+        // Build the authorization URL using Megalodon helper
+        const authUrl =
+          `https://${instanceUrl}/oauth/authorize` +
+          `?client_id=${encodeURIComponent(selectedInstance.client_key)}` +
+          `&redirect_uri=${encodeURIComponent(redirectUri)}` +
+          `&response_type=code` +
+          `&scope=${encodeURIComponent(scope)}` +
+          `&state=${encodeURIComponent(instanceUrl)}`;
+
+        console.log('Redirecting to Pixelfed:', authUrl);
+
+        // Redirect user to Pixelfed
+        window.location.href = authUrl;
+      } catch (error) {
+        handleError(error)
+      } finally {
+        this.loading = false;
       }
     },
 

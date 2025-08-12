@@ -560,8 +560,11 @@ onUnmounted(() => {
   </div>
 
   <div v-if="loading" class="loading-indicator">
-    <q-linear-progress :value="loadingProgress" color="warning" />
-    <p v-if="loadingStep" class="loadingStep">{{ loadingStep }}</p>
+    <q-linear-progress :value="loadingProgress" color="warning">
+      <div class="absolute-full flex flex-center">
+        <q-badge color="primary" text-color="white" :label="loadingStep" style="font-size: x-large; font-weight: bold" />
+      </div>
+    </q-linear-progress>
   </div>
 </template>
 
@@ -616,14 +619,6 @@ onUnmounted(() => {
 }
 .loading-indicator {
   margin-bottom: 1rem;
-}
-
-.loading-step {
-  margin-top: 0.5rem;
-  font-size: 2rem;
-  color: #666;
-  text-align: center;
-  z-index: 2;
 }
 
 h4 {

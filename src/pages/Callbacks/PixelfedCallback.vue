@@ -7,23 +7,19 @@ import { useNotify } from 'src/composables/useNotifications';
 
 const route = useRoute();
 const router = useRouter();
+const auth = useAuthStore();
 const { handleError } = useErrorHandling();
 const { notifySuccess } = useNotify();
 const pixelfed = usePixelfedStore();
 
 onMounted(async () => {
-  const auth = useAuthStore();
   if (!auth.user) {
     handleError('Please login first');
     return await router.push('/');
   }
+
   const code = route.query.code as string;
   const instance = String(route.query.state);
-
-  if (!code) {
-    handleError('No code returned from Pixelfed');
-    return await router.push('/settings/connections');
-  }
 
   try {
     const response = await pixelfed.connectAccount(code, instance);
@@ -32,10 +28,10 @@ onMounted(async () => {
       notifySuccess(response);
     else
       handleError(response);
-    return await router.push('/settings/connections');
   } catch (error) {
     handleError(error);
-    return await router.push('/settings/connections');
+  } finally {
+    await router.push('/settings/connections');
   }
 });
 </script>
