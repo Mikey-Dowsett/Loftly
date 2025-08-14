@@ -61,7 +61,7 @@ export default defineConfigWithVueTs(
         cordova: 'readonly',
         Capacitor: 'readonly',
         chrome: 'readonly', // BEX related
-        browser: 'readonly' // BEX related
+        browser: 'readonly', // BEX related
       }
     },
 

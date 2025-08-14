@@ -136,7 +136,7 @@ const onSubmit = async () => {
     loadingProgress.value = 0.9;
 
     const response = await axios.post(
-      `http://localhost:8000/create-post`,
+      `http://loftlyapi.fly.dev/create-post`,
       postPayload,
       {
         headers: {
@@ -147,7 +147,6 @@ const onSubmit = async () => {
     );
 
     console.log(response.data);
-    await usage.updateUsage(1);
 
     // Step 6: Post success
     loadingStep.value = 'Post created successfully!';

@@ -9,13 +9,14 @@ import { PlanNameToEnum, PlanTiers } from 'stores/models';
 const auth = useAuthStore();
 const subscription = useSubscriptionStore();
 const { handleError } = useErrorHandling();
-const stripePromise = loadStripe('pk_test_51Ro3YNDnWFQHUjwgKXSJHerEPWb44TFFLKS0op7qYmW5WruNyRIlRp9VSnP4zncfI0OmbC573KO8qVHRmthruuNT00uXDkxWgo');
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+const apiUrl = import.meta.env.VITE_API_URL;
 
 const redirectToCheckout = async (plan: string, price_id: string) => {
   const stripe = await stripePromise;
 
   if(PlanNameToEnum[subscription.subscription?.plan_name ?? ''] === PlanTiers.free) {
-    const res = await fetch('http://localhost:8000/create-checkout-session', {
+    const res = await fetch(`${apiUrl}/create-checkout-session`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -35,7 +36,7 @@ const redirectToCheckout = async (plan: string, price_id: string) => {
     }
   } else {
     try {
-      const { data } = await axios.post('http://localhost:8000/create-customer-portal-session', {
+      const { data } = await axios.post(`${apiUrl}/create-customer-portal-session`, {
         customer_id: subscription.subscription?.stripe_customer_id,
       });
 
@@ -56,19 +57,23 @@ const navigateToPost = () => {
 
 const annual = ref(false);
 
+const getPrice = (basePrice: number, isAnnual: boolean) => {
+  return isAnnual ? basePrice * 0.8 : basePrice;
+};
+
 const plans = [
   {
     name: 'Starter Tier',
     price_id: 'null',
     price_id_yearly: 'null',
     price: 0,
-    description: 'Perfect for individuals testing the waters',
+    description: 'Get started effortlessly with all the essentials to manage your social media presence',
     features: [
-      'Up to 3 connected accounts',
-      '5 posts per week',
-      'All Open-Source platforms',
-      'Create text & image posts',
-      'Basic post history (30 days)',
+      { text: 'Up to 3 connected accounts', status: 'available' },
+      { text: '5 posts per week', status: 'available' },
+      { text: 'All Open-Source platforms', status: 'available' },
+      { text: 'Create text & image posts', status: 'available' },
+      { text: 'Basic post history (30 days)', status: 'available' },
     ],
   },
   {
@@ -77,15 +82,14 @@ const plans = [
     price_id_yearly: 'price_1Ro63ADnWFQHUjwghdWjvUJH',
     price: 10,
     popular: true,
-    description: 'Great for content creators and small businesses',
+    description: 'Take your social presence up a notch with more reach and smarter tools',
     features: [
-      'Up to 10 connected accounts',
-      '25 posts per week',
-      'Video uploads (100MB)',
-      'Schedule posts (30 days)',
-      'Basic Analytics Dashboard',
-      'Limited AI Use',
-      'Extended history (6 Months)',
+      { text: 'Up to 10 connected accounts', status: 'available' },
+      { text: '25 posts per week', status: 'available' },
+      { text: 'Video uploads (100MB)', status: 'coming-soon' },
+      { text: 'Schedule posts (30 days)', status: 'coming-soon' },
+      { text: 'Basic Analytics Dashboard', status: 'coming-soon' },
+      { text: 'Extended history (6 Months)', status: 'available' },
     ],
   },
   {
@@ -93,43 +97,40 @@ const plans = [
     price_id: 'price_1Ro4WwDnWFQHUjwgRP6kgFea',
     price_id_yearly: 'price_1RqyEGDnWFQHUjwgxJIFjFm0',
     price: 25,
-    description: 'Advanced features for professional creators',
+    description: 'Maximize your impact with professional-grade tools built for serious creators',
     features: [
-      'Up to 25 connected accounts',
-      '100 posts per week',
-      'LinkedIn Integration',
-      'Schedule Posts (6 Months)',
-      'Advanced Analytics Dashboard',
-      'Extended AI Use',
-      'Extended history (1 year)',
-      'Custom messages per platform',
+      { text: 'Up to 25 connected accounts', status: 'available' },
+      { text: '100 posts per week', status: 'available' },
+      { text: 'Schedule Posts (6 Months)', status: 'coming-soon' },
+      { text: 'Advanced Analytics Dashboard', status: 'coming-soon' },
+      { text: 'Extended history (1 year)', status: 'available' },
+      { text: 'Custom messages per platform', status: 'coming-soon' },
     ],
   },
 ];
 </script>
 
 <template>
-  <q-card style="text-align: center; width: 50%; margin: 3rem auto">
+  <q-card class="header-card">
     <h3>Choose Your Plan</h3>
-    <p class="text-caption">Start with our free tier and scale up as your needs grow</p>
+    <p>Start with our free tier and scale up as your needs grow</p>
     <q-toggle v-model="annual" label="Annual Billing" color="primary" left-label />
   </q-card>
 
   <!-- Pricing Cards -->
-  <div class="justify-center" style="display: flex">
-    <div v-for="plan in plans" :key="plan.name" class="q-ma-md">
+  <div class="pricing-cards">
+    <div v-for="plan in plans" :key="plan.name" class="pricing-card">
       <q-card :class="{ 'popular-plan': plan.popular }" flat bordered>
         <q-card-section>
           <h4>{{ plan.name }}</h4>
           <h5>
-            ${{ annual ? (plan.price * 0.8).toFixed(2) : plan.price.toFixed(2)
-            }}<span class="text-subtitle2">/month</span>
+            ${{ getPrice(plan.price, annual )}}<span class="text-subtitle2">/month</span>
           </h5>
           <p class="text-subtitle2">{{ plan.description }}</p>
           <q-btn
             v-if="auth.user"
             :color="plan.popular ? 'primary' : 'grey'"
-            :label="plan.price === 0 ? 'Get Started' : plan.price === 10 ? 'Subscribe Now' : 'Coming Soon'"
+            :label="plan.price === 0 ? 'Get Started' : 'Subscribe Now'"
             class="full-width"
             @click="
               plan.price === 0
@@ -153,13 +154,21 @@ const plans = [
         <q-separator />
 
         <q-card-section>
-          <div class="text-subtitle2 q-mb-sm">Plan includes:</div>
+          <h6 class="q-mb-sm q-mt-none">Plan includes:</h6>
           <q-list dense separator>
             <q-item v-for="feature in plan.features" :key="feature">
               <q-item-section avatar>
-                <q-icon name="fa-solid fa-check" color="positive" />
+                <q-icon
+                  :name="feature.status === 'available' ? 'fa-solid fa-check' : 'fa-solid fa-hammer'"
+                  :color="feature.status === 'available' ? 'positive' : 'warning'"
+                />
               </q-item-section>
-              <q-item-section>{{ feature }}</q-item-section>
+              <q-item-section>
+                {{ feature.text }}
+                <q-badge v-if="feature.status === 'coming-soon'" color="warning" text-color="black">
+                  Coming Soon
+                </q-badge>
+              </q-item-section>
             </q-item>
           </q-list>
         </q-card-section>
@@ -169,12 +178,36 @@ const plans = [
 </template>
 
 <style scoped>
+.header-card {
+  text-align: center;
+  width: 50%;
+  margin: 3rem auto
+}
+
+.pricing-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin: 2rem;
+}
+
 .popular-plan {
   transform: scale(1.05);
   border: 2px solid var(--q-primary);
 }
 
 @media (max-width: 1024px) {
+  .header-card {
+    width: 90%;
+    margin: 2rem auto;
+  }
+  .pricing-cards {
+    display: inline;
+  }
+  .pricing-card {
+    width: 90%;
+    margin: 0 auto;
+  }
   .popular-plan {
     transform: none;
   }

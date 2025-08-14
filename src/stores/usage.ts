@@ -24,7 +24,6 @@ export const useUsageStore = defineStore('usage', {
       if (error) throw error;
 
       this.usage = data;
-      console.log('Fetched usage:', this.usage);
       this.loading = false;
     },
 

@@ -29,7 +29,6 @@ export async function initializeStores() {
 
   // Initialize other stores if user is authenticated
   if (authStore.user) {
-    console.log("Initializing user store");
     await Promise.all([
       connectedAccountsStore.init(),
       subscriptionStore.init(),

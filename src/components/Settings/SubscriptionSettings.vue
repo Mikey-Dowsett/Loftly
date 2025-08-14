@@ -16,7 +16,7 @@ const openCustomerPortal = async () => {
   loading.value = true;
 
   try {
-    const { data } = await axios.post('http://localhost:8000/create-customer-portal-session', {
+    const { data } = await axios.post('http://loftlyapi.fly.dev/create-customer-portal-session', {
       customer_id: subscription.subscription?.stripe_customer_id,
     });
 

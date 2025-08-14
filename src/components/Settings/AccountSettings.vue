@@ -16,6 +16,9 @@ const newPassword = ref('');
 const confirmPassword = ref('');
 const confirmDelete = ref(false);
 
+const apiUrl = import.meta.env.VITE_API_URL;
+console.log(apiUrl);
+
 const updateEmail = async () => {
   if (!newEmail.value) return;
   notifyInfo('Please check your inbox for a confirmation link');
@@ -57,7 +60,7 @@ const deleteAccount = async () => {
   if (!auth.user) return;
 
   try {
-    const response = await axios.post('http://localhost:8000/delete-user', {
+    const response = await axios.post(`${apiUrl}/delete-user`, {
       user_id: auth.user?.id
     });
     notifySuccess('Account deleted successfully');
