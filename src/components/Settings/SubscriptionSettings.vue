@@ -43,18 +43,25 @@ const subscriptionEndDate = computed(() => {
 
 <template>
   <div v-if="auth.user">
-    <h4>
-      <q-icon name="fa-solid fa-money-check-dollar" /> Subscription Management
-    </h4>
-
-    <q-separator />
-
-    <h5>Current Subscription: {{ subscription.subscription?.plan_name }}
-      <q-badge color="accent" text-color="white">
-        {{ subscription.subscription?.subscription_status }}
-      </q-badge>
-    </h5>
-    <h5>Renews on: {{ subscriptionEndDate }}</h5>
+    <div class="subscription-info">
+      <div class="info-row">
+        <h4 class="info-label">Current Plan:</h4>
+        <div class="info-value text-h6">
+          {{ subscription.subscription?.plan_name }}
+          <q-badge
+            color="accent"
+            text-color="white"
+            class="status-badge"
+          >
+            {{ subscription.subscription?.subscription_status }}
+          </q-badge>
+        </div>
+      </div>
+    </div>
+    <div class="info-row">
+      <h4 class="info-label">Renews on:</h4>
+      <div class="info-value text-h6">{{ subscriptionEndDate }}</div>
+    </div>
 
     <q-btn
       label="Open Customer Portal"
@@ -66,13 +73,52 @@ const subscriptionEndDate = computed(() => {
     />
   </div>
 
-  <div v-else>
+  <div v-else class="loader">
     <q-spinner />
   </div>
 </template>
 
 <style scoped>
-p {
-  margin-bottom: 8px;
+.header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.subscription-info {
+  margin: 1.5rem 0;
+}
+
+.info-row {
+  margin-bottom: 1rem;
+}
+
+.info-label {
+  margin: 0;
+  font-weight: 500;
+}
+
+.info-value {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.status-badge {
+  font-size: 0.8rem;
+}
+
+.loader {
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+}
+
+@media (max-width: 600px) {
+  .header {
+    font-size: 1.25rem;
+  }
 }
 </style>

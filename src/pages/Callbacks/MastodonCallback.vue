@@ -38,7 +38,7 @@ onMounted(async () => {
 
 <template>
   <div class="absolute-center" style="text-align: center;">
-    <q-spinner-comment color="primary" size="25%" />
+    <q-spinner-comment color="primary" size="100px" />
     <h4>Connecting to Mastodon...</h4>
   </div>
 </template>

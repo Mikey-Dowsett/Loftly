@@ -25,9 +25,8 @@ onMounted(async () => {
 <template>
  <div class="absolute-center" style="text-align: center;">
    <div v-if="auth.loading">
-     <q-spinner-comment size="xl" color="primary" />
+     <q-spinner-comment size="100px" color="primary" />
      <h4>Confirming New Email</h4>
-     <h6>If it's not loading please close all other loftly tabs</h6>
    </div>
    <q-btn v-else class="submit" label="Home" color="positive" to="/" />
  </div>

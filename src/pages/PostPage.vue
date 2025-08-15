@@ -395,8 +395,8 @@ onUnmounted(() => {
         <q-tabs v-model="media_tab" indicator-color="transparent">
           <q-tab name="images" icon="fa-solid fa-image" label="Images" />
           <q-tab name="videos" icon="fa-solid fa-film" label="Videos"
-                 :disable="!plan.plan?.video_access">
-            <q-tooltip v-if="!plan.plan?.video_access">Please upgrade to pro to upload videos</q-tooltip>
+                 :disable="true">
+            <q-tooltip>Coming Soon</q-tooltip>
           </q-tab>
         </q-tabs>
         <q-tab-panels v-model="media_tab" animated>
@@ -628,5 +628,13 @@ h6 {
   font-size: 0.9rem;
   font-weight: 400;
   color: #aaa;
+}
+
+@media (max-width: 1024px) {
+  .form-wrapper {
+    max-width: 90%;
+    margin: 1rem auto;
+    padding: 0;
+  }
 }
 </style>

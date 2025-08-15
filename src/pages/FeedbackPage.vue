@@ -20,7 +20,7 @@ const feature = ref({
 
 <template>
   <q-page class="card-wrapper">
-    <q-card flat bordered class="q-pa-md">
+    <q-card flat bordered class="feedback-card">
       <q-tabs v-model="tab" indicator-color="transparent">
         <q-tab name="bug" label="Report a Bug" icon="fa-solid fa-bug" />
         <q-tab name="feature" label="Suggest a Feature" icon="fa-solid fa-code" />
@@ -84,5 +84,11 @@ const feature = ref({
 .card-wrapper {
   max-width: 70%;
   margin: 3rem auto;
+}
+@media (max-width: 600px) {
+  .card-wrapper {
+    max-width: 90%;
+    margin: 1rem auto;
+  }
 }
 </style>

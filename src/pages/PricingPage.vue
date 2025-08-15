@@ -191,6 +191,11 @@ const plans = [
   margin: 2rem;
 }
 
+.pricing-card {
+  width: 30%;
+  margin: 0 auto;
+}
+
 .popular-plan {
   transform: scale(1.05);
   border: 2px solid var(--q-primary);
@@ -199,7 +204,7 @@ const plans = [
 @media (max-width: 1024px) {
   .header-card {
     width: 90%;
-    margin: 2rem auto;
+    margin: 1rem auto;
   }
   .pricing-cards {
     display: inline;

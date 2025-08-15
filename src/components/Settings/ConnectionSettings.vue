@@ -81,71 +81,119 @@ async function toggleAccount(account: ConnectedAccount) {
   }
 }
 
-onMounted( async () => {
-  await accounts.fetchConnectedAccounts()
-})
+onMounted(async () => {
+  await accounts.fetchConnectedAccounts();
+});
 </script>
 
 <template>
   <div>
-    <div style="display: flex">
-      <h4><q-icon name="fa-solid fa-plus" /> Add New Accounts</h4>
-      <div style="margin-left: auto; margin-right: 0">
-        <h4>Connected: {{ accounts.accounts?.length }} | Enabled: {{ accounts.enabledAccounts.length }}  | Max: {{ plan.plan?.account_limit }}</h4>
-        <q-tooltip>You can connect and enable up to {{ plan.plan?.account_limit }} accounts</q-tooltip>
+    <div class="header">
+      <div class="stats">
+        <h4>
+          Connected: {{ accounts.accounts?.length }}
+        </h4>
+        <h4>
+          Enabled: {{ accounts.enabledAccounts.length }}
+        </h4>
+        <h4>
+          Max: {{ plan.plan?.account_limit }}
+        </h4>
+        <q-tooltip
+          >You can connect and enable up to {{ plan.plan?.account_limit }} accounts</q-tooltip
+        >
       </div>
-
     </div>
-    <div style="display: flex">
-      <q-btn label="Mastodon" icon="fa-brands fa-mastodon"  style="color: #5d52e9" flat no-caps
-             @click="newMastodonAccount = true" :disable="maxAccounts"/>
-      <q-btn label="Bluesky" icon="fa-brands fa-bluesky" style="color: #1185fe" flat no-caps
-             @click="newBlueskyAccount = true" :disable="maxAccounts"/>
+
+    <div class="add_buttons">
+      <q-btn
+        label="Mastodon"
+        icon="fa-brands fa-mastodon"
+        style="color: #5d52e9"
+        flat
+        no-caps
+        @click="newMastodonAccount = true"
+        :disable="maxAccounts"
+      />
+      <q-btn
+        label="Bluesky"
+        icon="fa-brands fa-bluesky"
+        style="color: #1185fe"
+        flat
+        no-caps
+        @click="newBlueskyAccount = true"
+        :disable="maxAccounts"
+      />
       <q-btn flat no-caps @click="newPixelfedAccount = true" :disable="maxAccounts">
         <template v-slot:default>
-          <q-img src="/icons/pixelfed.svg" style="width: 35px; height: 35px; margin-right: 5px"/>
+          <q-img src="/icons/pixelfed.svg" style="width: 35px; height: 35px; margin-right: 5px" />
           Pixelfed
         </template>
       </q-btn>
       <q-btn flat no-caps @click="newLemmyAccount = true" :disable="maxAccounts">
         <template v-slot:default>
-          <q-img src="/icons/lemmy.svg" style="width: 35px; height: 35px; margin-right: 5px"/>
+          <q-img src="/icons/lemmy.svg" style="width: 35px; height: 35px; margin-right: 5px" />
           Lemmy
         </template>
       </q-btn>
     </div>
-    <q-tooltip v-if="maxAccounts">
-      Upgrade your plan to unlock more accounts
-    </q-tooltip>
+    <q-tooltip v-if="maxAccounts"> Upgrade your plan to unlock more accounts </q-tooltip>
   </div>
 
   <q-separator />
 
   <!--Account Interaction-->
-  <q-card-section v-for="(item, index) in accounts.accounts" :key="index" class="card-section"
-                  :class="index % 2 === 0 ? 'row-even' : 'row-odd'">
-    <template v-if="(platforms.find((x) => x.name === item.platform)?.icon || '').startsWith('/icons/')">
-      <q-img
-        :src="platforms.find((x) => x.name === item.platform)?.icon"
-        style="width: 40px; height: 40px" />
-    </template>
-    <template v-else>
-      <q-icon
-        :name="platforms.find((x) => x.name === item.platform)?.icon"
-        size="md"
-        :style="'color:' + platforms.find((x) => x.name === item.platform)?.color"
-      />
-    </template>
-    <q-btn :label="item.handle" :href="item.account_url" target="_blank" flat no-caps style="margin-left: 0; margin-right: auto">
-      <q-tooltip>Open this account page</q-tooltip>
-    </q-btn>
+  <q-card-section
+    v-for="(item, index) in accounts.accounts"
+    :key="index"
+    class="card-section"
+    :class="index % 2 === 0 ? 'row-even' : 'row-odd'"
+  >
+    <div class="platform-handle">
+      <template
+        v-if="(platforms.find((x) => x.name === item.platform)?.icon || '').startsWith('/icons/')"
+      >
+        <q-img
+          :src="platforms.find((x) => x.name === item.platform)?.icon"
+          style="width: 40px; height: 40px"
+        />
+      </template>
+      <template v-else>
+        <q-icon
+          :name="platforms.find((x) => x.name === item.platform)?.icon"
+          size="md"
+          :style="'color:' + platforms.find((x) => x.name === item.platform)?.color"
+        />
+      </template>
+      <q-btn
+        :label="item.handle"
+        :href="item.account_url"
+        target="_blank"
+        flat
+        no-caps
+        style="margin-left: 0; margin-right: auto"
+      >
+        <q-tooltip>Open this account page</q-tooltip>
+      </q-btn>
+    </div>
     <div class="actions">
-      <q-toggle color="positive" v-model="item.enabled" size="md" @update:model-value="toggleAccount(item)"
-        :disable="!item.enabled && accounts.enabledAccounts.length === plan.plan?.account_limit">
-        <q-tooltip v-if="item.enabled || accounts.enabledAccounts.length !== plan.plan?.account_limit">Enable this account by default?</q-tooltip>
-        <q-tooltip v-else>Upgrade your plan to enable more than {{ plan.plan?.account_limit }} accounts</q-tooltip>
+      <q-toggle
+        color="positive"
+        v-model="item.enabled"
+        name="enabled"
+        size="md"
+        @update:model-value="toggleAccount(item)"
+        :disable="!item.enabled && accounts.enabledAccounts.length === plan.plan?.account_limit"
+      >
+        <q-tooltip
+          v-if="item.enabled || accounts.enabledAccounts.length !== plan.plan?.account_limit"
+          >Enable this account by default?</q-tooltip
+        >
+        <q-tooltip v-else
+          >Upgrade your plan to enable more than {{ plan.plan?.account_limit }} accounts</q-tooltip
+        >
       </q-toggle>
-      <q-separator vertical class="visible-separator" />
+      <q-separator vertical class="visible-separator gt-xs" />
       <q-btn
         icon="fa-solid fa-trash"
         color="negative"
@@ -156,6 +204,7 @@ onMounted( async () => {
           confirmingDelete = item.id;
           isDeleteDialogOpen = true;
         "
+        class="delete"
       >
         <q-tooltip>Delete this account?</q-tooltip>
       </q-btn>
@@ -201,12 +250,36 @@ onMounted( async () => {
   </q-card-section>
 
   <ConnectBlueSkyComponent v-if="newBlueskyAccount" v-model="newBlueskyAccount" :key="refreshKey" />
-  <ConnectMastodonComponent v-if="newMastodonAccount" v-model="newMastodonAccount" :key="refreshKey" />
+  <ConnectMastodonComponent
+    v-if="newMastodonAccount"
+    v-model="newMastodonAccount"
+    :key="refreshKey"
+  />
   <ConnectLemmyComponent v-if="newLemmyAccount" v-model="newLemmyAccount" :key="refreshKey" />
-  <ConnectPixelfedComponent v-if="newPixelfedAccount" v-model="newPixelfedAccount" :key="refreshKey" />
+  <ConnectPixelfedComponent
+    v-if="newPixelfedAccount"
+    v-model="newPixelfedAccount"
+    :key="refreshKey"
+  />
 </template>
 
 <style scoped>
+.header {
+  display: flex;
+}
+.stats {
+  display: flex;
+  gap: 1rem;
+}
+
+.add_buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
 .card-section {
   display: flex;
   align-items: center;
@@ -239,5 +312,32 @@ onMounted( async () => {
   margin-right: 0;
   margin-left: auto;
   padding: 0 1.5rem;
+}
+
+@media (max-width: 600px) {
+  .header {
+    display: inline;
+  }
+  .header h4 {
+    font-size: 1.5rem;
+  }
+  .stats {
+    display: inline;
+  }
+
+  .card-section {
+    display: inline;
+  }
+
+  .platform-handle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .delete {
+    margin-left: auto;
+    margin-right: 0;
+  }
 }
 </style>

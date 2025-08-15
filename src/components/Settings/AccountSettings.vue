@@ -80,7 +80,9 @@ const emailRule = (val: string) =>
 
 <template>
   <div v-if="auth.user">
-    <h4><q-icon name="fa-solid fa-circle-check" /> {{ auth.user.email }}</h4>
+    <h4>
+      {{ auth.user.email }}
+    </h4>
 
     <q-separator />
 
@@ -156,5 +158,11 @@ const emailRule = (val: string) =>
 <style scoped>
 p {
   margin-bottom: 8px;
+}
+
+@media (max-width: 600px) {
+  h4 {
+    font-size: 1.2rem;
+  }
 }
 </style>

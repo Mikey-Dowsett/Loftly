@@ -102,7 +102,7 @@ const securePasswordRule = (val: string) =>
 .auth-page {
   position: relative;
   text-align: center;
-  min-width: 25%;
+  width: 600px;
   min-height: 50%;
   margin: auto;
   padding: 20px;
@@ -119,7 +119,7 @@ const securePasswordRule = (val: string) =>
 }
 .btn {
   padding: 0.5rem 1rem;
-  margin: 1rem auto;
+  margin: 0.5rem auto;
   border-radius: 1rem;
   color: var(--q-text);
   border: none;
@@ -129,5 +129,10 @@ const securePasswordRule = (val: string) =>
 h2 {
   margin: 1rem;
   font-weight: bold;
+}
+@media (max-width: 600px) {
+  .auth-page {
+    width: 90%;
+  }
 }
 </style>

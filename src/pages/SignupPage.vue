@@ -203,12 +203,18 @@ const securePasswordRule = (val: string) =>
 
 <style scoped>
 .wrapper {
-  width: 50%;
+  width: 600px;
   margin: 3rem auto;
   overflow-y: hidden;
 }
 .btn {
   width: 100%;
   margin-bottom: 1rem;
+}
+
+@media (max-width: 600px) {
+  .wrapper {
+    width: 90%;
+  }
 }
 </style>

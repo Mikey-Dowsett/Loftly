@@ -34,18 +34,6 @@ const resetPassword = async () => {
   }
 };
 
-// function parseHashParams(): Record<string, string> {
-//   const href = window.location.href;
-//   const hashIndex = href.indexOf('#');
-//   const hash = hashIndex >= 0 ? href.substring(hashIndex + 1) : '';
-//   const params = new URLSearchParams(hash);
-//   const result: Record<string, string> = {};
-//   for (const [key, value] of params.entries()) {
-//     result[key] = value;
-//   }
-//   return result;
-// }
-
 const passwordLengthRule = (val: string) =>
   val.length >= 8 || 'Password must be at least 8 characters';
 
@@ -90,6 +78,12 @@ const securePasswordRule = (val: string) =>
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 50%;
+  width: 600px;
+}
+
+@media (max-width: 600px) {
+  .q-card {
+    width: 90%;
+  }
 }
 </style>
