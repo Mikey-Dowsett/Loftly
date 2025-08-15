@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { watch, ref, onMounted, onUnmounted, computed } from 'vue';
-import { useRouter } from 'vue-router';
 import { QExpansionItem } from 'quasar';
 import axios from 'axios';
 import { useAuthStore, useStorageStore, useAccountsStore,
@@ -16,7 +15,6 @@ const accounts = useAccountsStore();
 const plan = usePlansStore();
 const storage = useStorageStore();
 const usage = useUsageStore();
-const $router = useRouter();
 
 const { handleError, validatePost, showValidationErrors } = useErrorHandling();
 const { notifySuccess } = useNotify();
@@ -316,11 +314,7 @@ watch(media_tab, (val) => {
 
 onMounted(async () => {
   try {
-    if (!auth.user) {
-      handleError('Please login to create posts', 'Authentication');
-
-      await $router.push('/signup');
-    }
+    if (!auth.user) return;
 
     await plan.init();
   } catch (error) {

@@ -44,9 +44,9 @@ export const useHistoryStore = defineStore('history', {
 
     async init() {
       const authStore = useAuthStore();
-      if (authStore.user) {
-        await this.fetchPostHistory();
-      }
+      if (!authStore.user) return;
+
+      await this.fetchPostHistory();
     }
   }
 })

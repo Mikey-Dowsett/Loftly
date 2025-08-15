@@ -83,7 +83,7 @@ const securePasswordRule = (val: string) =>
           </template>
         </q-input>
 
-        <q-btn no-caps type="submit" class="submit btn" color="positive" label="Login" />
+        <q-btn no-caps type="submit" class="submit btn" color="positive" label="Login" :loading="auth.loading" />
 
         <div>
           <q-btn flat no-caps class="btn"

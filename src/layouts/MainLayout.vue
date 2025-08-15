@@ -14,7 +14,7 @@ onMounted(async () => {
 
 <template>
   <HeaderComponent />
-  <q-page-container style="min-height: 100vh">
+  <q-page-container>
     <router-view v-if="isReady" />
   </q-page-container>
   <FooterComponent />

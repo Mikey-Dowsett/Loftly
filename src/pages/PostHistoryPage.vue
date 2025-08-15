@@ -2,12 +2,18 @@
 import { date } from 'quasar';
 import { useHistoryStore } from 'stores';
 import { type AccountPost } from 'stores/models';
+import { onMounted } from 'vue';
 
-const historyStore = useHistoryStore();
-console.log('historyStore', historyStore.posts);
+const history = useHistoryStore();
+
+onMounted(async () => {
+  if(history.posts?.length === 0) {
+    await history.fetchPostHistory();
+  }
+})
 
 function getSubPosts(postId: number): AccountPost[] {
-  return historyStore.sub_posts.filter((sp) => sp.post_id === postId);
+  return history.sub_posts.filter((sp) => sp.post_id === postId);
 }
 
 function openLink(url: string, platform: string): void {
@@ -56,7 +62,7 @@ function getPostColor(status: string): string {
   <q-timeline color="primary" class="timeline">
     <q-card class="history">
       <q-timeline-entry
-        v-for="post in historyStore.posts"
+        v-for="post in history.posts"
         :key="post.id"
         :title="post.content"
         :subtitle="formatDate(post.created_at)"

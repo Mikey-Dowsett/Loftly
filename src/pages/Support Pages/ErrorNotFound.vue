@@ -4,7 +4,3 @@
     <q-btn label="Home" to="/" class="submit q-mt-lg" color="primary" />
   </div>
 </template>
-
-<script setup lang="ts">
-//
-</script>

@@ -1,4 +1,4 @@
-import type { RouteRecordRaw } from 'vue-router';
+import { type RouteRecordRaw } from 'vue-router';
 
 const routes: RouteRecordRaw[] = [
   // Main layout routes
@@ -9,10 +9,16 @@ const routes: RouteRecordRaw[] = [
       {
         path: '',
         component: () => import('pages/LandingPage.vue'),
+        meta: {
+          public: true,
+        }
       },
       {
         path: '/signup',
         component: () => import('pages/SignupPage.vue'),
+        meta: {
+          public: true,
+        }
       },
       {
         path: '/post',
@@ -25,6 +31,9 @@ const routes: RouteRecordRaw[] = [
       {
         path: '/pricing',
         component: () => import('pages/Support Pages/PricingPage.vue'),
+        meta: {
+          public: true,
+        }
       },
       {
         path: '/feedback',
@@ -33,10 +42,16 @@ const routes: RouteRecordRaw[] = [
       {
         path: '/privacy-policy',
         component: () => import('pages/Support Pages/PrivacyPolicy.vue'),
+        meta: {
+          public: true,
+        }
       },
       {
         path: '/terms-of-service',
         component: () => import('pages/Support Pages/TermsOfService.vue'),
+        meta: {
+          public: true,
+        }
       },
       // Settings with nested routes
       {

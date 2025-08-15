@@ -1,3 +1,6 @@
+<script setup lang="ts">
+</script>
+
 <template>
   <q-layout>
     <router-view/>
@@ -40,5 +43,3 @@
   --q-mastodon: #5d52e9;
 }
 </style>
-<script setup lang="ts">
-</script>
