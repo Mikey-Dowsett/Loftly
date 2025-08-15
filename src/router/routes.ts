@@ -1,6 +1,7 @@
 import type { RouteRecordRaw } from 'vue-router';
 
 const routes: RouteRecordRaw[] = [
+  // Main layout routes
   {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
@@ -29,6 +30,7 @@ const routes: RouteRecordRaw[] = [
         path: '/feedback',
         component: () => import('pages/FeedbackPage.vue'),
       },
+      // Settings with nested routes
       {
         path: '/settings',
         component: () => import('pages/Settings/SettingsPage.vue'),
@@ -54,35 +56,27 @@ const routes: RouteRecordRaw[] = [
     ]
   },
 
+  // Minimal layout routes
   {
-    path: '/mastodon/callback',
+    path: '/',
     component: () => import('layouts/MinimalLayout.vue'),
     children: [
-      { path: '', component: () => import('pages/Callbacks/MastodonCallback.vue') },
-    ],
-  },
-
-  {
-    path: '/pixelfed/callback',
-    component: () => import('layouts/MinimalLayout.vue'),
-    children: [
-      { path: '', component: () => import('pages/Callbacks/PixelfedCallback.vue') },
-    ],
-  },
-
-  {
-    path: '/email-confirmed',
-    component: () => import('layouts/MinimalLayout.vue'),
-    children: [
-      { path: '', component: () => import('pages/Settings/ConfirmEmailPage.vue') },
-    ],
-  },
-
-  {
-    path: '/reset-password',
-    component: () => import('layouts/MinimalLayout.vue'),
-    children: [
-      {path: '', component: () => import('pages/Settings/ForgotPasswordPage.vue') },
+      {
+        path: '/mastodon/callback',
+        component: () => import('pages/Callbacks/MastodonCallback.vue'),
+      },
+      {
+        path: '/pixelfed/callback',
+        component: () => import('pages/Callbacks/PixelfedCallback.vue'),
+      },
+      {
+        path: '/email-confirmed',
+        component: () => import('pages/Settings/ConfirmEmailPage.vue'),
+      },
+      {
+        path: '/reset-password',
+        component: () => import('pages/Settings/ForgotPasswordPage.vue'),
+      },
     ],
   },
 
