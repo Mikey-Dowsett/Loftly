@@ -156,7 +156,7 @@ const plans = [
         <q-card-section>
           <h6 class="q-mb-sm q-mt-none">Plan includes:</h6>
           <q-list dense separator>
-            <q-item v-for="feature in plan.features" :key="feature">
+            <q-item v-for="feature in plan.features" :key="feature.text">
               <q-item-section avatar>
                 <q-icon
                   :name="feature.status === 'available' ? 'fa-solid fa-check' : 'fa-solid fa-hammer'"

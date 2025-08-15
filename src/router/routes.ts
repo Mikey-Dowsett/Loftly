@@ -24,11 +24,19 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: '/pricing',
-        component: () => import('pages/PricingPage.vue'),
+        component: () => import('pages/Support Pages/PricingPage.vue'),
       },
       {
         path: '/feedback',
         component: () => import('pages/FeedbackPage.vue'),
+      },
+      {
+        path: '/privacy-policy',
+        component: () => import('pages/Support Pages/PrivacyPolicy.vue'),
+      },
+      {
+        path: '/terms-of-service',
+        component: () => import('pages/Support Pages/TermsOfService.vue'),
       },
       // Settings with nested routes
       {
@@ -82,7 +90,7 @@ const routes: RouteRecordRaw[] = [
 
   {
     path: '/:catchAll(.*)*',
-    component: () => import('pages/ErrorNotFound.vue'),
+    component: () => import('pages/Support Pages/ErrorNotFound.vue'),
   },
 ];
 
