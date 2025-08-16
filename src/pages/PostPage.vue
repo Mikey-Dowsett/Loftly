@@ -45,6 +45,8 @@ const showImageLimits = ref(false);
 const getUsageDisplay = () => {
   const used = usage.usage?.post_count || 0;
   const limit = plan.plan?.post_limit || 0;
+  if(limit - used < 0)
+    return 'Posts left: 0'
   return `Posts left: ${limit - used}`;
 };
 
