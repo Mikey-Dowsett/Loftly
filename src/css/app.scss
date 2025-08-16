@@ -1,4 +1,3 @@
-// app global css in SCSS form
 body,
 body.body--dark {
   background-color: var(--q-background);
@@ -47,7 +46,6 @@ h1, h2, h3, h4, h5, h6, p {
 .q-card {
   max-width: 100%;
   padding: 1rem 2rem 1rem 2rem;
-  margin-bottom: 3rem;
   border-radius: 1rem;
   background-color: var(--q-background);
   color: var(--q-text);

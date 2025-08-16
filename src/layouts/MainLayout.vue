@@ -13,11 +13,13 @@ onMounted(async () => {
 </script>
 
 <template>
-  <HeaderComponent />
-  <q-page-container>
-    <router-view v-if="isReady" />
-  </q-page-container>
-  <FooterComponent />
+  <q-layout>
+    <HeaderComponent />
+    <q-page-container>
+      <router-view v-if="isReady" />
+    </q-page-container>
+    <FooterComponent />
+  </q-layout>
 </template>
 
 <style scoped>

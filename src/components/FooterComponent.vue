@@ -15,7 +15,7 @@ const links = {
 </script>
 
 <template>
-  <footer class="footer-container">
+  <q-footer class="footer-container">
     <div class="footer-content">
       <div class="footer-section">
         <h6>About</h6>
@@ -51,7 +51,7 @@ const links = {
     <div class="footer-bottom">
       <p>&copy; {{ currentYear }} Loftly</p>
     </div>
-  </footer>
+  </q-footer>
 </template>
 
 <style scoped>

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { watch } from 'vue';
 import { useAccountsStore, usePlansStore } from 'stores';
 import { Platform } from 'src/stores/models';
 
@@ -32,13 +31,6 @@ const platforms: { name: Platform; label: string; icon: string; color: string }[
     color: '#66d7ba',
   },
 ];
-
-watch(
-  () => accounts.accounts,
-  () => {
-  },
-  { deep: true },
-);
 </script>
 
 <template>
@@ -73,10 +65,6 @@ watch(
 </template>
 
 <style scoped>
-.account-wrapper {
-  width: 90%;
-  margin: 3rem auto;
-}
 .card-section {
   display: flex;
   align-items: center;
@@ -97,19 +85,6 @@ watch(
 }
 
 @media (min-width: 1024px) {
-  .account-wrapper {
-    max-height: 75%;
-    width: 26%;
-    padding: 1rem;
-    margin: 3rem auto;
-    overflow-y: auto;
-
-    position: fixed;
-    top: 50%;
-    transform: translateY(-50%);
-    left: 2.5%;
-    z-index: 2;
-  }
   .q-btn {
     font-size: 1rem;
     overflow-x: hidden;
