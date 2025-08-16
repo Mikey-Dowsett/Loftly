@@ -34,11 +34,13 @@
           </q-card-section>
           <div class="platforms-grid">
             <q-card-section v-for="platform in platforms" :key="platform.title" class="platform">
-              <q-icon v-if="platform.icon.endsWith('.svg')" :name="'img:' + platform.icon"
-                      :style="{color: platform.color}" size="40px" />
-              <q-icon v-else :name="platform.icon"
-                      :style="{color: platform.color}" size="40px" />
-              <div class="text-h6 text-weight-bold q-mb-xs">{{ platform.title }}</div>
+              <a :href="platform.link" target="_blank">
+                <q-icon v-if="platform.icon.endsWith('.svg')" :name="'img:' + platform.icon"
+                        :style="{color: platform.color}" size="40px" />
+                <q-icon v-else :name="platform.icon"
+                        :style="{color: platform.color}" size="40px" />
+                <div class="text-h6 text-weight-bold q-mb-xs">{{ platform.title }}</div>
+              </a>
             </q-card-section>
           </div>
         </q-card>
@@ -102,22 +104,26 @@ const platforms = [
   {
     icon: 'fa-brands fa-mastodon',
     title: 'Mastodon',
-    color: '#5d52e9'
+    color: '#5d52e9',
+    link: 'https://joinmastodon.org/'
   },
   {
     icon: 'fa-brands fa-bluesky',
     title: 'Bluesky',
-    color: '#1185fe'
+    color: '#1185fe',
+    link: 'https://bsky.app/'
   },
   {
     icon: "/icons/pixelfed.svg",
     title: 'Pixel Fed',
-    color: '#ffffff'
+    color: '#ffffff',
+    link: 'https://pixelfed.org/'
   },
   {
     icon: '/icons/lemmy.svg',
     title: 'Lemmy',
-    color: '#66d7ba'
+    color: '#66d7ba',
+    link: 'https://join-lemmy.org/'
   }
 
 ];
