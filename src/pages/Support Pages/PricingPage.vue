@@ -78,8 +78,8 @@ const plans = [
   },
   {
     name: 'Indie Tier',
-    price_id: 'price_1Ro3epDnWFQHUjwgpTi2hP5P',
-    price_id_yearly: 'price_1Ro63ADnWFQHUjwghdWjvUJH',
+    price_id: import.meta.env.VITE_INDIE_MONTHLY,
+    price_id_yearly: import.meta.env.VITE_INDIE_YEARLY,
     price: 10,
     popular: true,
     description: 'Take your social presence up a notch with more reach and smarter tools',
@@ -94,8 +94,8 @@ const plans = [
   },
   {
     name: 'Creator Tier',
-    price_id: 'price_1Ro4WwDnWFQHUjwgRP6kgFea',
-    price_id_yearly: 'price_1RqyEGDnWFQHUjwgxJIFjFm0',
+    price_id: import.meta.env.VITE_CREATOR_MONTHLY,
+    price_id_yearly: import.meta.env.VITE_CREATOR_YEARLY,
     price: 25,
     description: 'Maximize your impact with professional-grade tools built for serious creators',
     features: [
