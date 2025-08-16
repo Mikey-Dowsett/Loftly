@@ -48,14 +48,13 @@ const platforms: { name: Platform; label: string; icon: string; color: string }[
           :style="'color:' + platforms.find((x) => x.name === item.platform)?.color"
         />
       </template>
-      <q-btn :label="item.handle" :href="item.account_url" target="_blank" flat no-caps>
-        <q-tooltip>Open this account page</q-tooltip>
-      </q-btn>
+      <q-btn :label="item.handle" :href="item.account_url" target="_blank" flat no-caps />
       <div class="actions">
         <q-toggle color="positive" v-model="item.enabled" size="sm"
                   :disable="!item.enabled && accounts.enabledAccounts.length === plan.plan?.account_limit">
-          <q-tooltip v-if="item.enabled || accounts.enabledAccounts.length !== plan.plan?.account_limit">Post to this account?</q-tooltip>
-          <q-tooltip v-else>Upgrade your plan to enable more than {{ plan.plan?.account_limit }} accounts</q-tooltip>
+          <q-tooltip v-if="!item.enabled && accounts.enabledAccounts.length === plan.plan?.account_limit">
+            Upgrade your plan to enable more than {{ plan.plan?.account_limit }} accounts
+          </q-tooltip>
         </q-toggle>
       </div>
     </q-card-section>

@@ -583,7 +583,7 @@ onUnmounted(() => {
   position: sticky;
   align-self: flex-start;
   align-items: flex-start;
-  top: 2rem;
+  top: 3rem;
 }
 .form-wrapper {
   flex: 2;

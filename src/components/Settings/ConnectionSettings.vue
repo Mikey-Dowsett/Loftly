@@ -99,9 +99,6 @@ onMounted(async () => {
         <h4>
           Max: {{ plan.plan?.account_limit }}
         </h4>
-        <q-tooltip
-          >You can connect and enable up to {{ plan.plan?.account_limit }} accounts</q-tooltip
-        >
       </div>
     </div>
 
@@ -137,7 +134,7 @@ onMounted(async () => {
         </template>
       </q-btn>
     </div>
-    <q-tooltip v-if="maxAccounts"> Upgrade your plan to unlock more accounts </q-tooltip>
+    <q-tooltip v-if="maxAccounts"> Upgrade your plan to add more accounts </q-tooltip>
   </div>
 
   <q-separator />
@@ -172,9 +169,7 @@ onMounted(async () => {
         flat
         no-caps
         style="margin-left: 0; margin-right: auto"
-      >
-        <q-tooltip>Open this account page</q-tooltip>
-      </q-btn>
+       />
     </div>
     <div class="actions">
       <q-toggle
@@ -185,11 +180,7 @@ onMounted(async () => {
         @update:model-value="toggleAccount(item)"
         :disable="!item.enabled && accounts.enabledAccounts.length === plan.plan?.account_limit"
       >
-        <q-tooltip
-          v-if="item.enabled || accounts.enabledAccounts.length !== plan.plan?.account_limit"
-          >Enable this account by default?</q-tooltip
-        >
-        <q-tooltip v-else
+        <q-tooltip v-if="!item.enabled && accounts.enabledAccounts.length === plan.plan?.account_limit"
           >Upgrade your plan to enable more than {{ plan.plan?.account_limit }} accounts</q-tooltip
         >
       </q-toggle>
@@ -205,9 +196,7 @@ onMounted(async () => {
           isDeleteDialogOpen = true;
         "
         class="delete"
-      >
-        <q-tooltip>Delete this account?</q-tooltip>
-      </q-btn>
+       />
     </div>
 
     <!--Delete Account Dialog-->
@@ -268,6 +257,7 @@ onMounted(async () => {
   display: flex;
 }
 .stats {
+  align-items: center;
   display: flex;
   gap: 1rem;
 }
@@ -326,7 +316,7 @@ onMounted(async () => {
   }
 
   .card-section {
-    display: inline;
+    display: block;
   }
 
   .platform-handle {
