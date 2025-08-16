@@ -1,10 +1,23 @@
 <script setup lang="ts">
+import { ref, computed } from 'vue'
 import { date } from 'quasar';
 import { useHistoryStore } from 'stores';
 import { type AccountPost } from 'stores/models';
 import { onMounted } from 'vue';
 
 const history = useHistoryStore();
+const currentPage = ref(1);
+const pageSize = ref(10);
+
+const paginatedPosts = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value;
+  const end = start + pageSize.value;
+  return history.posts.slice(start, end);
+});
+
+const totalPages = computed(() => {
+  return Math.ceil(history.posts.length / pageSize.value);
+});
 
 onMounted(async () => {
   if(history.posts?.length === 0) {
@@ -62,7 +75,7 @@ function getPostColor(status: string): string {
   <q-timeline color="primary" class="timeline">
     <q-card class="history">
       <q-timeline-entry
-        v-for="post in history.posts"
+        v-for="post in paginatedPosts"
         :key="post.id"
         :title="post.content"
         :subtitle="formatDate(post.created_at)"
@@ -115,6 +128,18 @@ function getPostColor(status: string): string {
           </q-list>
         </q-expansion-item>
       </q-timeline-entry>
+
+      <div class="pagination">
+        <q-pagination v-if="totalPages > 1"
+          v-model="currentPage"
+          :max="totalPages"
+          :max-pages="7"
+          :ellipses="false"
+          color="primary"
+          class="q-mt-md"
+          direction-links
+          />
+      </div>
     </q-card>
   </q-timeline>
 </template>
@@ -126,6 +151,11 @@ function getPostColor(status: string): string {
 }
 .history {
   padding: 2rem;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
 }
 
 .subpost {

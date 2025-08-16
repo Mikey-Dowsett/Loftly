@@ -26,7 +26,7 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: '/history',
-        component: () => import('pages/PostHistoryPage.vue'),
+        component: () => import('pages/HistoryPage.vue'),
       },
       {
         path: '/pricing',
