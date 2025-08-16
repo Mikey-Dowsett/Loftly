@@ -8,7 +8,7 @@ const tab = ref('bug');
 const bug = ref({
   title: '',
   description: '',
-  severity: '',
+  priority: '',
 });
 
 const feature = ref({
@@ -40,13 +40,13 @@ const feature = ref({
               required
             />
             <q-select
-              v-model="bug.severity"
-              label="Severity"
+              v-model="bug.priority"
+              label="Priority"
               :options="['Low', 'Medium', 'High']"
               outlined
               required
             />
-            <input type="hidden" name="severity" :value="bug.severity" />
+            <input type="hidden" name="severity" :value="bug.priority" />
             <input type="hidden" name="_replyto" :value="auth.user?.email" class="q-input" />
             <q-btn label="Submit Bug" color="primary" type="submit" class="q-mt-md submit" />
           </form>
@@ -69,7 +69,7 @@ const feature = ref({
               :options="['UI', 'Performance', 'Integration', 'Other']"
               outlined
             />
-            <input type="hidden" name="severity" :value="bug.severity" />
+            <input type="hidden" name="severity" :value="bug.priority" />
             <input type="hidden" name="_replyto" :value="auth.user?.email" class="q-input" />
             <q-btn label="Submit Suggestion" color="primary" type="submit" class="q-mt-md submit" />
           </q-form>
