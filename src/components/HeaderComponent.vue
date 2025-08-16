@@ -28,6 +28,9 @@ const signOut = async () => {
 
 eventBus.on('logged-in', () => {
   showLoginWindow.value = false;
+  void(async () => {
+    await router.push("/post");
+  })
 });
 
 eventBus.on('show-login', () => {

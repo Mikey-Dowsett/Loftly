@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useAuthStore, useSubscriptionStore } from 'stores';
+import { PlanTiers } from 'stores/models'
 import { useErrorHandling } from 'src/composables/useErrorHandling';
 import axios from 'axios';
 import { format } from 'date-fns';
@@ -70,6 +71,7 @@ const subscriptionEndDate = computed(() => {
       icon="fa-solid fa-arrow-up-right-from-square"
       :loading="loading"
       @click="openCustomerPortal"
+      v-if="subscription.subscription?.plan_name != PlanTiers.free"
     />
   </div>
 
