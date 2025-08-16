@@ -1,16 +1,17 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { Dark, QMenu } from 'quasar';
-import { eventBus } from '../tools/event-bus';
-import { useAuthStore } from 'stores';
-import LoginWindow from '../components/LoginWindow.vue';
 import { useRouter } from 'vue-router';
+import { eventBus } from '../tools/event-bus';
+import { useAuthStore, usePlansStore } from 'stores';
+import LoginWindow from '../components/LoginWindow.vue';
 
 const router = useRouter();
 const showLoginWindow = ref(false);
 const menuRef = ref<InstanceType<typeof QMenu> | null>(null);
 
 const auth = useAuthStore();
+const plan = usePlansStore();
 
 const showLogin = () => {
   showLoginWindow.value = true;
@@ -51,7 +52,7 @@ eventBus.on('show-login', () => {
       <router-link v-if="auth.user" to="/post" class="link" active-class="link-active">
         <h4 style="font-size: x-large">Create Post</h4>
       </router-link>
-      <router-link to="/pricing" class="link" active-class="link-active">
+      <router-link to="/pricing" class="link" active-class="link-active" v-if="plan.plan?.name ==='free' || !auth.user">
         <h4 style="font-size: x-large">Pricing</h4>
       </router-link>
     </div>
