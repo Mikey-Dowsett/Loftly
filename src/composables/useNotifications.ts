@@ -1,86 +1,25 @@
-import { useQuasar } from 'quasar';
+import { getCurrentInstance } from 'vue';
 
 
 export function useNotify() {
-  const $q = useQuasar();
+  const app = getCurrentInstance()?.appContext.app;
+  const notify = app?.config.globalProperties.$notify;
 
   function notifySuccess(message: string) {
-    $q.notify({
-      type: 'positive',
-      message,
-      position: 'top-left',
-      icon: 'fa-solid fa-check',
-      timeout: 5000,
-      progress: true,
-      actions: [
-        {
-          icon: 'fa-solid fa-xmark',
-          color: 'white',
-          handler: () => {
-          }
-        }
-      ]
-    });
+    notify?.success(message);
   }
 
   function notifyError(message: string) {
-    $q.notify({
-      type: 'negative',
-      message,
-      position: 'top-left',
-      icon: 'fa-solid fa-exclamation',
-      timeout: 5000,
-      progress: true,
-      actions: [
-        {
-          icon: 'fa-solid fa-xmark',
-          color: 'white',
-          handler: () => {
-          }
-        }
-      ]
-    });
+    notify?.error(message);
   }
 
   function notifyWarning(message: string) {
-    $q.notify({
-      type: 'warning',
-      message,
-      position: 'top-left',
-      icon: 'fa-solid fa-triangle-exclamation',
-      timeout: 5000,
-      progress: true,
-      actions: [
-        {
-          icon: 'fa-solid fa-xmark',
-          color: 'white',
-          handler: () => {
-          }
-        }
-      ]
-    });
+    notify?.warning(message);
   }
 
   function notifyInfo(message: string) {
-    $q.notify({
-      type: 'info',
-      message,
-      position: 'top-left',
-      icon: 'fa-solid fa-info',
-      timeout: 5000,
-      progress: true,
-      actions: [
-        {
-          icon: 'fa-solid fa-xmark',
-          color: 'white',
-          handler: () => {
-          }
-        }
-      ]
-    });
+    notify?.info(message);
   }
-
-
 
   return {
     notifySuccess,

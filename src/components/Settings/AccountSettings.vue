@@ -40,7 +40,6 @@ const updatePassword = async () => {
 
   try {
     await auth.updateUserPassword(newPassword.value);
-    console.log('Password updated successfully');
     notifySuccess('Password updated successfully');
 
     // Optionally reset the fields
@@ -76,6 +75,13 @@ const deleteAccount = async () => {
 
 const emailRule = (val: string) =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val) || 'Please enter a valid email';
+
+const passwordLengthRule = (val: string) =>
+  val.length >= 8 || 'Password must be at least 8 characters';
+
+const securePasswordRule = (val: string) =>
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/.test(val) ||
+  'Password must include uppercase, lowercase, number, and special character';
 </script>
 
 <template>
@@ -106,12 +112,12 @@ const emailRule = (val: string) =>
       <h5><strong>New Password</strong></h5>
       <!-- Update Password -->
       <div>
-        <q-input v-model="newPassword" label="New Password" type="password" standout clearable>
+        <q-input v-model="newPassword" label="New Password" type="password" standout clearable :rules="[passwordLengthRule, securePasswordRule]">
           <template v-slot:prepend>
             <q-icon name="fa-solid fa-key" />
           </template>
         </q-input>
-        <q-input v-model="confirmPassword" label="Confirm Password" type="password" standout clearable>
+        <q-input v-model="confirmPassword" label="Confirm Password" type="password" standout clearable :rules="[passwordLengthRule, securePasswordRule]">
           <template v-slot:prepend>
             <q-icon name="fa-solid fa-key" />
           </template>

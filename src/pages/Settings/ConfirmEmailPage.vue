@@ -1,23 +1,23 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAuthStore } from 'stores'
+import { useNotify } from 'src/composables/useNotifications';
 import { useErrorHandling } from 'src/composables/useErrorHandling';
 
 const auth = useAuthStore();
+const $router = useRouter();
+const { notifySuccess } = useNotify();
 const { handleError } = useErrorHandling();
 
 onMounted(async () => {
   try {
-    // Extract URL hash fragment
-    const hash = window.location.hash.substring(1)
-    const params = new URLSearchParams(hash)
-
-    const access_token = params.get('access_token') ?? '';
-    const refresh_token = params.get('refresh_token') ?? '';
-
-    await auth.setSession(access_token, refresh_token);
-  } catch (err) {
-    handleError(err);
+    await auth.fetchUser();
+    notifySuccess('Successfully updated your email');
+  } catch (error) {
+    handleError(error);
+  } finally {
+    await $router.push('/settings/account');
   }
 });
 </script>
