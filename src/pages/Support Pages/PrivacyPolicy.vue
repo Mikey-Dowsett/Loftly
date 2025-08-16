@@ -41,7 +41,7 @@ const sections = ref([
       'Request corrections or updates.',
       'Request deletion of your data (“Right to be Forgotten”).',
       'Object to certain processing activities.',
-      'To exercise these rights, email us at [your email here].'
+      'To exercise these rights, email us at support@loftly.social.'
     ]
   },
   {
@@ -59,7 +59,9 @@ const sections = ref([
     content:
       'I may update this Privacy Policy from time to time. If I make significant changes, I will notify you via email or in-app.'
   }
-])
+]);
+
+const email = `mailto:support@loftly.social`;
 </script>
 
 <template>
@@ -90,6 +92,8 @@ const sections = ref([
 
       <section class="q-mt-lg">
         <h2 class="text-h6">Contact Us</h2>
+        <q-btn color="primary" :href="email">&#115;&#117;&#112;&#112;&#111;&#114;&#116;&#64;&#108;&#111;&#102;&#116;&#108;&#121;&#46;&#115;&#111;&#99;&#105;&#97;&#108;
+        </q-btn>
       </section>
     </div>
   </q-card>

@@ -20,6 +20,8 @@
 
       <section class="q-mt-lg">
         <h2 class="text-h6">Contact</h2>
+        <q-btn color="primary" :href="email">&#115;&#117;&#112;&#112;&#111;&#114;&#116;&#64;&#108;&#111;&#102;&#116;&#108;&#121;&#46;&#115;&#111;&#99;&#105;&#97;&#108;
+        </q-btn>
       </section>
     </div>
   </q-card>
@@ -75,7 +77,9 @@ const sections = ref([
     content:
       'I may update these Terms from time to time. Significant changes will be communicated via email or in-app. Continued use of Loftly constitutes acceptance of the updated Terms.'
   }
-])
+]);
+
+const email = `mailto:support@loftly.social`;
 </script>
 
 <style scoped>
