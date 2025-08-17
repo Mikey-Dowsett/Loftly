@@ -7,7 +7,7 @@
       <p class="text-subtitle1 q-mb-md">
         Draft once and publish to Bluesky, Mastodon, Lemmy, and more – instantly.
       </p>
-      <q-btn color="primary" text-color="black" label="Start Posting Now" size="lg" to="/post" class="call-to-action" />
+      <q-btn color="primary" text-color="black" label="Start Posting Now" size="lg" :to="getStartedLink" class="call-to-action" />
 <!--      <q-btn flat label="Explore How It Works" color="secondary" to="#how-it-works" />-->
     </section>
 
@@ -61,12 +61,14 @@
     <!-- Call to Action -->
     <section class="q-mb-xl text-center">
       <h2 class="text-h4 q-my-md">Ready to streamline your fediverse posts?</h2>
-      <q-btn size="lg" color="primary" label="Get Started Free" to="/post" text-color="black" class="call-to-action" />
+      <q-btn size="lg" color="primary" label="Get Started Free" :to="getStartedLink" text-color="black" class="call-to-action" />
     </section>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useAuthStore } from 'stores';
+const auth = useAuthStore();
 const features = [
   {
     icon: 'fa-solid fa-pencil',
@@ -125,8 +127,9 @@ const platforms = [
     color: '#66d7ba',
     link: 'https://join-lemmy.org/'
   }
-
 ];
+
+const getStartedLink = auth.user ? "/post" : "/signup";
 </script>
 
 <style scoped>

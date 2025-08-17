@@ -11,8 +11,10 @@ const subscription = useSubscriptionStore();
 const { handleError } = useErrorHandling();
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 const apiUrl = import.meta.env.VITE_API_URL;
+const loading = ref(false);
 
 const redirectToCheckout = async (plan: string, price_id: string) => {
+  loading.value = true;
   const stripe = await stripePromise;
 
   if(PlanNameToEnum[subscription.subscription?.plan_name ?? ''] === PlanTiers.free) {
@@ -25,14 +27,13 @@ const redirectToCheckout = async (plan: string, price_id: string) => {
     });
 
     const session = await res.json();
-    console.log(session);
 
     const result = await stripe?.redirectToCheckout({
       sessionId: session.id,
     });
 
     if (result?.error) {
-      console.error(result.error.message);
+      handleError(result?.error)
     }
   } else {
     try {
@@ -49,6 +50,7 @@ const redirectToCheckout = async (plan: string, price_id: string) => {
       handleError(err);
     }
   }
+  loading.value = false;
 }
 
 const navigateToPost = () => {
@@ -139,6 +141,7 @@ const plans = [
             "
             :flat="!plan.popular"
             :text-color="plan.popular ? 'black' : 'primary'"
+            :loading="loading"
           />
           <q-btn
             v-else

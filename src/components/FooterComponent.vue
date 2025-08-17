@@ -2,8 +2,8 @@
 const currentYear = new Date().getFullYear()
 const links = {
   social: [
-    { icon: 'fa-brands fa-github', label: 'GitHub', url: 'https://github.com/your-repo' },
-    { icon: 'fa-brands fa-mastodon', label: 'Mastodon', url: 'https://mastodon.social/@loftly' },
+    { icon: 'fa-brands fa-github', label: 'GitHub', url: 'https://github.com/Mikey-Dowsett/Loftly' },
+    { icon: 'fa-brands fa-mastodon', label: 'Mastodon', url: 'https://mastodon.social/@mikeydowsett' },
   ],
   quickLinks: [
     { label: 'Home', route: '/' },

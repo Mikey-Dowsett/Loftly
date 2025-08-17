@@ -18,6 +18,7 @@ const usage = useUsageStore();
 
 const { handleError, validatePost, showValidationErrors } = useErrorHandling();
 const { notifySuccess } = useNotify();
+const apiUrl = import.meta.env.VITE_API_URL;
 
 const title = ref('');
 const message = ref('');
@@ -69,7 +70,6 @@ const onSubmit = async () => {
       throw Error('Post limit reached. Please upgrade your plan for more posts.');
     }
 
-    console.log(accounts.enabledAccounts.length);
     if (!accounts || accounts.enabledAccounts.length === 0) {
       throw new Error('Please select at least one account to post to');
     }
@@ -135,8 +135,8 @@ const onSubmit = async () => {
     loadingStep.value = 'Publishing post...';
     loadingProgress.value = 0.9;
 
-    const response = await axios.post(
-      `http://loftlyapi.fly.dev/create-post`,
+    await axios.post(
+      `${apiUrl}/create-post`,
       postPayload,
       {
         headers: {
@@ -145,8 +145,6 @@ const onSubmit = async () => {
         timeout: 30000, // 30 Seconds
       }
     );
-
-    console.log(response.data);
 
     // Step 6: Post success
     loadingStep.value = 'Post created successfully!';
@@ -162,7 +160,7 @@ const onSubmit = async () => {
         await storage.deleteImages(uploadedImageFilenames);
       } catch (cleanupError) {
         // Log cleanup errors but don't show to user
-        console.error('Failed to clean up uploaded images:', cleanupError);
+        handleError(cleanupError, 'Image Upload');
       }
     }
 
