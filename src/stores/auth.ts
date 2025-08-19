@@ -145,10 +145,11 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async updateUserEmail(newEmail: string,) {
+      const siteUrl = import.meta.env.VITE_URL;
       const { error } = await supabase.auth.updateUser(
         { email: newEmail },
         {
-          emailRedirectTo: 'http://localhost:9000/email-confirmed'
+          emailRedirectTo: `${siteUrl}/email-confirmed`
         }
       );
 

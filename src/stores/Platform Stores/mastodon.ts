@@ -23,10 +23,11 @@ export const useMastodonStore = defineStore('mastodon', {
     async fetchInstances() {
       const auth = useAuthStore();
       if (!auth.user) return;
+      const siteUrl = import.meta.env.VITE_URL;
 
       this.loading = true;
       const { data, error } = await supabase.from('instances')
-        .select().eq('platform', 'mastodon');
+        .select().eq('platform', 'mastodon').eq('site_url', siteUrl);
       this.instances = data || [];
       this.loading = false;
 
@@ -36,7 +37,8 @@ export const useMastodonStore = defineStore('mastodon', {
 
     async registerInstance(instance: string) {
       this.loading = true;
-      const redirectUri = 'http://localhost:9000/mastodon/callback';
+      const siteUrl = import.meta.env.VITE_URL;
+      const redirectUri = `${siteUrl}/mastodon/callback`;
 
       try {
         const client = generator('mastodon', `https://${instance}`);
@@ -44,7 +46,7 @@ export const useMastodonStore = defineStore('mastodon', {
         const appData = await client.registerApp('Loftly', {
           scopes: ['read', 'write'],
           redirect_uris: redirectUri,
-          website: 'http://localhost:9000'
+          website: siteUrl
         });
 
         const { data, error } = await supabase.from('instances').insert({
@@ -52,6 +54,7 @@ export const useMastodonStore = defineStore('mastodon', {
           instance,
           client_key: appData.client_id,
           client_secret: appData.client_secret,
+          site_url: siteUrl,
         }).select().single();
 
         if (error) throw error;
@@ -75,7 +78,8 @@ export const useMastodonStore = defineStore('mastodon', {
       if (!instance) return `Missing instance ${instanceUrl}`;
 
       this.connecting = true;
-      const redirectUri = 'http://localhost:9000/mastodon/callback';
+      const siteUrl = import.meta.env.VITE_URL;
+      const redirectUri = `${siteUrl}/mastodon/callback`;
 
       try {
         const client = generator('mastodon', `https://${instance.instance}`)
@@ -122,6 +126,7 @@ export const useMastodonStore = defineStore('mastodon', {
     },
 
     async startAccountConnection(instanceUrl: string) {
+      const siteUrl = import.meta.env.VITE_URL;
       try {
         // Ensure instance exists in DB
         let selectedInstance = this.instances.find((x) => x.instance === instanceUrl);
@@ -140,7 +145,7 @@ export const useMastodonStore = defineStore('mastodon', {
         }
         this.loading = true;
 
-        const redirectUri = 'http://localhost:9000/mastodon/callback';
+        const redirectUri = `${siteUrl}/mastodon/callback`;
         const scope = 'read write';
 
         // Build the authorization URL using Megalodon helper

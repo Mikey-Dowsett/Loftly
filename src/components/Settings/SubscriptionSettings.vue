@@ -9,6 +9,7 @@ import { format } from 'date-fns';
 const auth = useAuthStore();
 const subscription = useSubscriptionStore();
 const { handleError } = useErrorHandling();
+const apiUrl = import.meta.env.VITE_API_URL;
 
 const loading = ref(false);
 
@@ -17,7 +18,7 @@ const openCustomerPortal = async () => {
   loading.value = true;
 
   try {
-    const { data } = await axios.post('http://loftlyapi.fly.dev/create-customer-portal-session', {
+    const { data } = await axios.post(`${apiUrl}/create-customer-portal-session`, {
       customer_id: subscription.subscription?.stripe_customer_id,
     });
 

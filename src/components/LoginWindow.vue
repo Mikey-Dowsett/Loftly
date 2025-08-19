@@ -2,11 +2,13 @@
 import { ref } from 'vue';
 import { QForm } from 'quasar';
 import { eventBus } from '../tools/event-bus';
+import { useRouter } from 'vue-router';
 import { useAuthStore } from 'stores'
 import { supabase } from 'src/lib/supabase'
 import { useErrorHandling } from 'src/composables/useErrorHandling';
 import { useNotify } from 'src/composables/useNotifications';
 
+const router = useRouter();
 const auth = useAuthStore()
 const { handleError } = useErrorHandling();
 const { notifySuccess, notifyInfo } = useNotify();
@@ -15,6 +17,7 @@ const modelValue = defineModel<boolean | null>({default: false});
 const formRef = ref();
 const email = ref('');
 const password = ref('');
+const siteUrl = import.meta.env.VITE_URL;
 
 const handleAuth = async () => {
   try {
@@ -22,6 +25,10 @@ const handleAuth = async () => {
 
     eventBus.emit('logged-in');
     notifySuccess('Successfully logged in');
+
+    void(async () => {
+      await router.push("/post");
+    });
   } catch (error) {
     handleError(error);
     console.error(error);
@@ -30,7 +37,7 @@ const handleAuth = async () => {
 
 const sendRecoveryEmail = async () => {
   const { error } = await supabase.auth.resetPasswordForEmail(email.value, {
-    redirectTo: 'http://localhost:9000/reset-password', // match your setup
+    redirectTo: `${siteUrl}/reset-password`,
   });
 
   if (error) {

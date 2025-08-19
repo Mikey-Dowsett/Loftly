@@ -17,7 +17,6 @@ const confirmPassword = ref('');
 const confirmDelete = ref(false);
 
 const apiUrl = import.meta.env.VITE_API_URL;
-console.log(apiUrl);
 
 const updateEmail = async () => {
   if (!newEmail.value) return;

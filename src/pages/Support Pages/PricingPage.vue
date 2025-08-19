@@ -18,22 +18,26 @@ const redirectToCheckout = async (plan: string, price_id: string) => {
   const stripe = await stripePromise;
 
   if(PlanNameToEnum[subscription.subscription?.plan_name ?? ''] === PlanTiers.free) {
-    const res = await fetch(`${apiUrl}/create-checkout-session`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ plan: plan, price_id: price_id, user_id: auth.user?.id }),
-    });
+    try {
+      const res = await fetch(`${apiUrl}/create-checkout-session`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ plan: plan, price_id: price_id, user_id: auth.user?.id }),
+      });
 
-    const session = await res.json();
+      const session = await res.json();
 
-    const result = await stripe?.redirectToCheckout({
-      sessionId: session.id,
-    });
+      const result = await stripe?.redirectToCheckout({
+        sessionId: session.id,
+      });
 
-    if (result?.error) {
-      handleError(result?.error)
+      if (result?.error) {
+        handleError(result?.error)
+      }
+    } catch (error) {
+      handleError(error);
     }
   } else {
     try {
@@ -125,9 +129,7 @@ const plans = [
       <q-card :class="{ 'popular-plan': plan.popular }" flat bordered>
         <q-card-section>
           <h4>{{ plan.name }}</h4>
-          <h5>
-            ${{ getPrice(plan.price, annual )}}<span class="text-subtitle2">/month</span>
-          </h5>
+          <h5>${{ getPrice(plan.price, annual) }}<span class="text-subtitle2">/month</span></h5>
           <p class="text-subtitle2">{{ plan.description }}</p>
           <q-btn
             v-if="auth.user"
@@ -162,7 +164,9 @@ const plans = [
             <q-item v-for="feature in plan.features" :key="feature.text">
               <q-item-section avatar>
                 <q-icon
-                  :name="feature.status === 'available' ? 'fa-solid fa-check' : 'fa-solid fa-hammer'"
+                  :name="
+                    feature.status === 'available' ? 'fa-solid fa-check' : 'fa-solid fa-hammer'
+                  "
                   :color="feature.status === 'available' ? 'positive' : 'warning'"
                 />
               </q-item-section>
@@ -184,7 +188,7 @@ const plans = [
 .header-card {
   text-align: center;
   width: 50%;
-  margin: 3rem auto
+  margin: 3rem auto;
 }
 
 .pricing-cards {

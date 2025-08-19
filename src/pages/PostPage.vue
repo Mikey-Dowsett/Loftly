@@ -151,6 +151,7 @@ const onSubmit = async () => {
     loadingProgress.value = 1;
 
     notifySuccess('Post created successfully');
+    await usage.updateUsage(1);
 
     resetForm();
   } catch (error) {
